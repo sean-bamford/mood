@@ -34,10 +34,9 @@ span{
     top: 0;
     font-style: italic;
 }
-.quality {
+.mood {
 text-shadow: 0px 0px 0.2em var(--background);
-text-decoration: solid underline var(--text);
-text-decoration-color: var(--primary);
+text-decoration: solid underline var(--primary);
 }
 
 .rating{

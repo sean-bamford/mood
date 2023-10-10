@@ -1,0 +1,14 @@
+.selection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.factor {
+    flex-direction: column;
+    font-size: larger;
+}
+.subfactor {
+    margin: 0em;
+    font-size: smaller;
+}

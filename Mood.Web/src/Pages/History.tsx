@@ -2,10 +2,12 @@ import queryDatabase from "../Services/HttpService";
 import { useEffect, useState } from "react";
 import { EagerResult, Record, RecordShape } from "neo4j-driver";
 import "./History.css";
+import Entry from "../Types/Entry";
+import Factor from "../Types/Factor";
 
 const History = () => {
   const [records, setRecords] = useState<RecordShape[]>();
-  const [entries, setEntries] = useState<object[]>();
+  const [entries, setEntries] = useState<Entry[]>();
   const [refresh, setRefresh] = useState<boolean>(false);
   const refreshResults = () => {
     setRefresh(!refresh);
@@ -25,9 +27,24 @@ const History = () => {
     loadData();
   }, [refresh]);
 
+  function convertToEntry(record: RecordShape, factors: Factor[] = []): Entry {
+    const properties = Object(record.mood.properties);
+    const entry: Entry = {
+      Date: properties.Date,
+      Rating: properties.Rating.toInt(),
+      Mood: properties.Mood || properties.Quality,
+      Factors: factors,
+      Note: properties.Note,
+    };
+    return entry;
+  }
+
   useEffect(() => {
     if (records) {
-      setEntries(records.flatMap((entry) => Object(entry.mood.properties)));
+      const list: Array<Entry> = records.map((record: RecordShape) => {
+        return convertToEntry(record);
+      });
+      setEntries(list);
     }
   }, [records]);
 
@@ -39,16 +56,20 @@ const History = () => {
       </div>
       <div className="content">
         <div className="history">
-          {entries?.map((entry) => (
+          { entries ?
+          entries.map((entry) => (
             <div
-              className={"--" + entry.Rating.toInt() + " entry"}
-              key={entry.Date}
+              className={"--" + entry.Rating + " entry"}
+                key={entry.Date.toString()}
             >
-              <span className="date">{entry.Date}</span>
-              <h2 className="quality">{entry.Quality}</h2>
-              <span className="rating">{entry.Rating.toInt()}</span>
+              <span className="date">
+                <span>{entry.Date.toString()}</span>
+              </span>
+              <h2 className="mood">{entry.Mood}</h2>
+              <span className="rating">{entry.Rating}</span>
+              {entry.Factors && entry.Factors.map((factor) => <span>{factor.Name}</span>)}
             </div>
-          ))}
+          )) : null }
         </div>
 
         <br />

@@ -13,7 +13,7 @@ const Home = () => (
     </div>
     <div className="content">
       <div className="nav">
-        <NavLink to="/entry" className="bubble entry-nav">
+        <NavLink to="/make-entry" className="bubble entry-nav">
           Make an Entry
         </NavLink>
         <NavLink to="/history" className="bubble history-nav">

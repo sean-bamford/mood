@@ -3,7 +3,7 @@ import Factor from './Factor';
 type Entry = {
     Date: Date;
     Rating: number;
-    Quality?: string;
+    Mood?: string;
     Factors?: Factor[];
     Note?: string;
     };
