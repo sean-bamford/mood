@@ -1,15 +1,12 @@
-import './App.css'
-import * as db from 'neo4j-driver'
+import { Outlet } from "react-router";
+import "./App.css";
 
 function App() {
-  const driver = db.driver('bolt://localhost:7687', db.auth.basic('neo4j', 'tesseract'))
-  const serverInfo=driver.getServerInfo()
-  console.log(serverInfo)
   return (
-    <>
-   Text.
-    </>
-  )
+    <div className="wrapper">
+      <Outlet />
+    </div>
+  );
 }
 
-export default App
+export default App;

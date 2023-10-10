@@ -1,8 +1,8 @@
 const Pattern = () => (
   
     <div>
-      <h1>Home</h1>
-      <p>Welcome to Mood!</p>
+      <h1>Patterns</h1>
+      <p>View your lifestye patterns and how they affect your wellbeing.</p>
     </div>
   
 )
