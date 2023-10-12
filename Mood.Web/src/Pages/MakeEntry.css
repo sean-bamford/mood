@@ -1,14 +1,54 @@
 .selection {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  /* outline: 1px solid var(--text); */
+  min-width: 10em;
+  min-height: 10em;
 }
-.factor {
-    flex-direction: column;
-    font-size: larger;
+
+.selection > .factor {
+  justify-content: start;
+  flex: 0;
+  flex-direction: column;
+  font-size: larger;
 }
+
+
+
+.question {
+  background-color: var(--primary);
+  text-align: center;
+  width: max-content;
+  height: 6em;
+  padding: 2em;
+  border-radius: 1em;
+  font-size: 1em;
+  font-weight: 500;
+  /* font-size: large; */
+  /* top: calc(50% - 7em);
+  z-index: -1; */
+  box-shadow: 0 0 0em var(--text) inset, 0 -2em 4em var(--background) inset,
+    0 0.1em 0.5em var(--accent1) inset, 0 1px 1px var(--primary),
+    0 0px 0.5em var(--accent4);
+}
+
 .subfactor {
-    margin: 0em;
-    font-size: smaller;
+  margin: 0em;
+  font-size: smaller;
+}
+button.continue {
+  line-height: 2em;
+  aspect-ratio: 1/1;
+  flex-direction: row;
+  margin: 1em;
+  background-color: transparent;
+  box-shadow: 0 0 0.1em var(--background) inset;
+}
+.submit {
+  position: relative;
+  bottom: 0;
+  margin: 2em;
+  width: fit-content;
 }

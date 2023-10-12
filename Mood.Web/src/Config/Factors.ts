@@ -1,4 +1,8 @@
-const Factors = {
+interface Factors {
+    [key: string]: string[];
+  }
+
+const Factors: Factors = {
     "Sleep": ["Duration",  "Quality"],
     "Diet": ["Quality"],
     "Weather": ["Description"],

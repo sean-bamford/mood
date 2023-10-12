@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import Home from "../Pages/Home";
-import Entry from "../Pages/MakeEntry";
 import History from "../Pages/History";
 import Pattern from "../Pages/Pattern";
 import Login from "../Pages/Login";

@@ -74,7 +74,7 @@ const History = () => {
 
         <br />
       </div>
-      <button className="refresh" onClick={refreshResults}>
+      <button className="refresh" onClick={() => refreshResults()}>
         ↻
       </button>
     </>
