@@ -1,11 +1,14 @@
-const Moods = {
-  Happy: ["Content", "Playful", "Peaceful", "Excited"],
-  Sad: ["Lonely", "Despair", "Depressed", "Hurt"],
-  Bad: ["Tired", "Stressed", "Sick", "Bored"],
+interface Moods {
+  [key: string]: string[];
+}
+
+const Moods: Moods = {
+  Happy: ["Content", "Playful", "Excited"],
+  Angry: ["Frustrated", "Mad", "Bitter"],
   Neutral: ["Calm", "Detached", "Numb"],
-  Angry: ["Frustrated", "Mad", "Bitter", "Jealous"],
-  Fearful: ["Anxious", "Scared", "Worried", "Insecure"],
-  Surprised: ["Confused", "Amazed", "Shocked", "Astonished"],
+  Sad: ["Lonely", "Down", "Upset"],
+  Fearful: ["Anxious", "Scared", "Unsettled"],
+  Bad: ["Stressed", "Sick", "Bored"]
 };
 
 export default Moods;

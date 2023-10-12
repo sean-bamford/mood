@@ -12,11 +12,6 @@
     height: 6em;
     border-radius: 1em;
     position: relative;
-    --1: #a81f15;
-    --2: #a84b15;
-    --3: #a8a615;
-    --4: #37a815;
-    --5: #1579a8;
 }
 .history {
     display: flex;

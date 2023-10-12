@@ -1,50 +1,56 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './DragInput.css';
+import React from 'react';
 
-const DragInput = () => {
-  const [value, setValue] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleMouseDown = () => {
-    setIsDragging(true);
-  };
-
-  const handleMouseMove = (e) => {
-    // Ensure that isDragging is true before updating the value
-    if (isDragging) {
-      const newValue = value + e.movementX;
-      setValue(newValue);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleInputChange = (e) => {
-    const newValue = parseFloat(e.target.value);
-    if (!isNaN(newValue)) {
-      setValue(newValue);
-    }
-  };
-
-  return (
-    <div id="dragInput">
-      <div
-        className={`slider ${isDragging ? 'grabbing' : ''}`} // Removed 'grab' class
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove} // Added mousemove event
-        onMouseUp={handleMouseUp}
-      ></div>
-      <input
-        id="inputField"
-        type="text"
-        className="input-field"
-        value={value}
-        onChange={handleInputChange}
-      />
-    </div>
-  );
+interface DragInputProps {
+    component: React.ReactNode;
 }
+
+const DragInput = ({ component }: DragInputProps) => {
+    const [value, setValue] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleMouseDown = () => {
+        setIsDragging(true);
+    };
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isDragging) {
+            const newValue = value + Math.round(e.movementX / 2) - Math.round(e.movementY / 2);
+            setValue(newValue);
+        }
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = parseFloat(e.target.value);
+        if (!isNaN(newValue)) {
+            setValue(newValue);
+        }
+    };
+
+    return (
+        <div id="dragInput">
+            <div
+                className={`slider ${isDragging ? 'grabbing' : ''}`}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+            >
+                {React.cloneElement(component as React.ReactElement, { value })}
+            </div>
+            <input
+                id="inputField"
+                type="text"
+                className="input-field"
+                value={value}
+                onChange={handleInputChange}
+            />
+        </div>
+    );
+};
 
 export default DragInput;

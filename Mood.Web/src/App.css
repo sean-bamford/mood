@@ -3,7 +3,6 @@
   height: 100svh;
   scrollbar-color:
     var(--background) var(--primary);
-  scroll
 }
 .wrapper {
   min-width: 320px;

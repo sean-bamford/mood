@@ -1,18 +1,14 @@
 interface Factors {
-    [key: string]: string[];
+    [key: string]: string;
   }
 
 const Factors: Factors = {
-    "Sleep": ["Duration",  "Quality"],
-    "Diet": ["Quality"],
-    "Weather": ["Description"],
-    "Social Connection": ["Quality"],
-    "Sunlight Exposure": ["Duration"],
-    "Caffeine": ["Intake", "Cutoff Time"],
-    "Exercise": ["Type", "Quality"],
-    "Illness": ["Intensity"],
-    "Energy": ["Level"],
-    "Stress": ["Level"],
-    "Social Media Use": ["Duration"]
+    "Sleep": "Quality",
+    "Diet": "Quality",
+    "Social Connection": "Quality",
+    "Exercise": "Quality",
+    "Energy": "Level",
+    "Stress": "Level",
+    "Social Media Use": "Amount"
 }
 export default Factors;
