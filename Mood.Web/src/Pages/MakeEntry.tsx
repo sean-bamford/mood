@@ -1,18 +1,19 @@
 import "./MakeEntry.css";
+import Help from "../Components/Help";
 import Entry from "../Types/Entry";
 import Factor from "../Types/Factor";
 import { useState } from "react";
 import Moods from "../Config/Moods";
 import Factors from "../Config/Factors";
-import Ratings from "../Config/Ratings";
 import queryDatabase from "../Services/HttpService";
-import { Navigate } from "react-router";
 import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
 
 const MakeEntry = () => {
   const [entry, setEntry] = useState<Entry>();
   const [showFactors, setShowFactors] = useState<boolean>(false);
   const [showMoods, setShowMoods] = useState<boolean>(false);
+  const [showAbout, setShowAbout] = useState<boolean>(false);
   const [factors, setFactors] = useState<Factor[]>([]);
   const [value, setValue] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -63,7 +64,6 @@ const MakeEntry = () => {
         Factors: factors,
       };
       setEntry(newEntry);
-      console.log(entry);
     }
   };
 
@@ -73,48 +73,64 @@ const MakeEntry = () => {
   };
 
   const handleSubmit = () => {
-    function convertFactors(inputArray: Factor[]): { [key: string]: number } {
-      const keyValuePairs: { [key: string]: number } = {};
+    // function convertFactors(inputArray: Factor[]): { [key: string]: number } {
+    //   const keyValuePairs: { [key: string]: number } = {};
 
-      inputArray.forEach((item) => {
-        if (item.Rating) {
-          keyValuePairs[item.Name] = item.Rating;
-        }
-      });
+    //   inputArray.forEach((item) => {
+    //     if (item.Rating) {
+    //       keyValuePairs[item.Name] = item.Rating;
+    //     }
+    //   });
 
-      return keyValuePairs;
-    }
+    //   return keyValuePairs;
+    // }
 
-    const f = Object.entries((convertFactors(entry.Factors)));
-    console.log(Object.entries((entry.Factors)));
-    const query = `MATCH (latestFactor:Factors)
-    WITH latestFactor
-    ORDER BY latestFactor.Date DESC
-    LIMIT 1
+    // const parameters = { Factors: convertFactors(entry.Factors) };
 
-    CREATE (newEntry:Entry {
-      Mood: "${entry?.Mood}",
-      Rating: ${entry?.Rating},
-      Date: "${entry?.Date}"
-    })
+    const query = `
+      
+    CREATE (newMood:Mood 
+        { Mood: $mood, Rating: $rating, Date: $date }
+      )
+      RETURN newMood`;
 
-    CREATE (latestFactor)-[:Preceded]->(newEntry)
-    
-   
-    CREATE (newFactor:Factors 
-      ${f}
-    )
-    
-  
-    CREATE (latestFactor)-[:Coincided_With]->(newFactor)
-    
-    RETURN latestFactor, newEntry, newFactor
-    `;
-    console.log(f);
-   console.log(query);
-   // console.log(queryDatabase(query));}
-   // navigate("/home");
+    const params = {
+      mood: entry?.Mood,
+      rating: entry?.Rating,
+      date: entry?.Date.toLocaleDateString(),
+    };
+
+    // console.log(query, params);
+    queryDatabase(query, params).then((result) =>
+      console.log(result?.summary?.counters.updates())
+    );
+
+    //   `
+    //   MATCH (latestEntry:Entry)
+    //   WITH latestEntry
+    //   ORDER BY latestEntry.Date DESC
+    //   LIMIT 1
+
+    //   CREATE (newEntry:Entry {
+    //     Mood: $mood,
+    //     Rating: $rating,
+    //     Date: $date,
+    //     Factors: $factors
+    //   })
+
+    //   CREATE (latestEntry)-[:Preceded]->(newEntry)
+
+    //   CREATE (newFactor:Factors { Factors: $factors })
+
+    //   CREATE (latestFactor)-[:Coincided_With]->(newFactor)
+
+    //   RETURN newEntry
+    // `
+
+    navigate("/home");
   };
+const handleOpen = () => {setShowAbout(true)};
+  const onClose = () => {setShowAbout(false)};
 
   return (
     <>
@@ -125,6 +141,16 @@ const MakeEntry = () => {
         )}
       </div>
       <div className="content" onMouseUp={handleMouseUp}>
+        {showAbout &&
+          createPortal(
+            <div className="about">
+              <h2>About</h2>
+              <div>Click on one of the boxes to rate how you feel today. You can optionally click on a mood to record a specific emotion, then click and drag on any lifestyle factors to rate them for the day and determine any patterns over time.  </div><br />
+              <button className="close" onClick={onClose}>Close</button>
+            </div>,
+            document.body
+          )}
+
         {!showFactors && !showMoods && (
           <div className="selection">
             <button className="bubble" id="1" onClick={() => handleRate(1)}>
@@ -148,7 +174,7 @@ const MakeEntry = () => {
           <div className="selection">
             {Object.keys(Moods).map((mood) => {
               return (
-                <div className="bubble factor">
+                <div className="bubble factor" key={mood}>
                   <h2>{mood}</h2>
                   {Moods[mood].map((submood: string) => {
                     return (
@@ -192,7 +218,9 @@ const MakeEntry = () => {
           ✓
         </button>
       )}
-      <button className="help">?</button>
+      <button className="help" onClick={handleOpen}>
+        ?
+      </button>
     </>
   );
 };

@@ -31,7 +31,7 @@ const History = () => {
     const properties = Object(record.mood.properties);
     const entry: Entry = {
       Date: properties.Date,
-      Rating: properties.Rating.toInt(),
+      Rating: properties.Rating,
       Mood: properties.Mood || properties.Quality,
       Factors: factors,
       Note: properties.Note,
@@ -48,6 +48,15 @@ const History = () => {
     }
   }, [records]);
 
+  const handleReset = () => {
+    const query = `
+    MATCH (n)
+    DETACH DELETE n
+    `;
+  
+    queryDatabase(query).then((result) => console.log(result?.summary?.counters.updates()));
+  }
+
   return (
     <>
       <div className="header">
@@ -60,10 +69,10 @@ const History = () => {
           entries.map((entry) => (
             <div
               className={"--" + entry.Rating + " entry"}
-                key={entry.Date.toString()}
+                key={entry}
             >
               <span className="date">
-                <span>{entry.Date.toString()}</span>
+                <span>{entry.Date}</span>
               </span>
               <h2 className="mood">{entry.Mood}</h2>
               <span className="rating">{entry.Rating}</span>
@@ -74,7 +83,7 @@ const History = () => {
 
         <br />
       </div>
-      <button className="refresh" onClick={() => refreshResults()}>
+      <button className="refresh" onClick={handleReset}>
         ↻
       </button>
     </>
