@@ -3,19 +3,13 @@ import { useEffect, useState } from "react";
 import { EagerResult, Record, RecordShape } from "neo4j-driver";
 import { useNavigate } from "react-router-dom";
 import "./History.css";
-import Entry from "../Types/Entry";
+import { ViewEntry } from "../Types/Entry";
 import Factor from "../Types/Factor";
 
 const History = () => {
   const [records, setRecords] = useState<RecordShape[]>();
-  const [entries, setEntries] = useState<Entry[]>();
-  const [factors, setFactors] = useState<Factor[]>();
-  const [refresh, setRefresh] = useState<boolean>(false);
+  const [entries, setEntries] = useState<ViewEntry[]>();
   const navigate = useNavigate();
-
-  const refreshResults = () => {
-    setRefresh(!refresh);
-  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -29,14 +23,15 @@ const History = () => {
       }
     };
     loadData();
-  }, [refresh]);
+  }, []);
 
-  function convertToEntry(record: RecordShape): Entry {
+  function convertToEntry(record: RecordShape): ViewEntry {
     const properties = Object(record.entry.properties);
-    const entry: Entry = {
+    const entry: ViewEntry = {
       Date: properties.Date,
       Rating: properties.Rating,
       Mood: properties.Mood,
+      Viewing: false,
     };
     return entry;
   }
@@ -45,23 +40,23 @@ const History = () => {
     const factors: Factor[] = result.records.map((record) => {
       return record.get(0).properties;
     });
-    return factors;
+    return factors.sort((a, b) => {
+      if (a.Name < b.Name) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
   }
 
   useEffect(() => {
     if (records) {
-      const list: Array<Entry> = records.map((record: RecordShape) => {
+      const list: Array<ViewEntry> = records.map((record: RecordShape) => {
         return convertToEntry(record);
       });
       setEntries(list);
     }
   }, [records]);
-
-  // useEffect(() => {
-  //   entries?.find((entry) => {
-  //  const newEntries = ...entries
-
-  // }, [factors]);
 
   const handleBack = () => {
     navigate("/");
@@ -77,43 +72,60 @@ const History = () => {
     );
   };
 
-  const handleViewFactors = async (entry: Entry) => {
-    const query = `
-      MATCH (selectedEntry:Entry)
-      WHERE selectedEntry.Date = $date
-      WITH selectedEntry
-      MATCH (f:Factor)-[:ON]-(selectedEntry)
-      RETURN f
-      UNION
-      MATCH (selectedEntry:Entry)
-      WHERE selectedEntry.Date = $date
-      WITH selectedEntry
-      MATCH(selectedEntry)<-[:BEFORE]-(f:Factor{Name: "Sleep"})
-      RETURN f`;
-    const params = {
-      date: entry.Date.toString(),
-    };
-    try {
-      const result = await queryDatabase(query, params);
-      console.log(result?.records);
-      if (result?.records) {
-        setFactors(convertToFactors(result));
-        const newEntries: Entry[] = entries ? [...entries] : [];
-        const index = newEntries.findIndex((e) => e === entry);
-        if (index !== -1) {
-          newEntries[index] = { ...entry, Factors: factors };
-          setEntries(newEntries);
-        }
-      }
-    } catch (error) {
-      console.log(error);
+  const toggleView = (entry: ViewEntry) => {
+    const newEntries: ViewEntry[] = entries ? [...entries] : [];
+    const index = newEntries.findIndex((e) => e === entry);
+    if (index !== -1) {
+      newEntries[index] = { ...entry, Viewing: !entry.Viewing };
+      setEntries(newEntries);
     }
   };
 
-  const handleResetFactors = () => 
-    {
-      setFactors(undefined);
+  useEffect(() => {
+    const handleViewFactors = async (entry: ViewEntry) => {
+      if (entry.Viewing && !entry.Factors) {
+        const query = `
+        MATCH (selectedEntry:Entry)
+        WHERE selectedEntry.Date = $date
+        WITH selectedEntry
+        MATCH (f:Factor)-[:ON]-(selectedEntry)
+        RETURN f
+        UNION
+        MATCH (selectedEntry:Entry)
+        WHERE selectedEntry.Date = $date
+        WITH selectedEntry
+        MATCH(selectedEntry)<-[:BEFORE]-(f:Factor{Name: "Sleep"})
+        RETURN f`;
+
+        const params = { date: entry.Date.toString() };
+
+        try {
+          const result = await queryDatabase(query, params);
+          if (result?.records) {
+            const newEntries: ViewEntry[] = entries ? [...entries] : [];
+            const index = newEntries.findIndex((e) => e === entry);
+            if (index !== -1) {
+              newEntries[index] = {
+                ...entry,
+                Factors: convertToFactors(result),
+              };
+              setEntries(newEntries);
+            }
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+
+    if (entries) {
+      entries.forEach((entry) => {
+        if (entry.Viewing && !entry.Factors) {
+          handleViewFactors(entry);
+        }
+      });
     }
+  }, [entries]);
 
   return (
     <>
@@ -126,16 +138,21 @@ const History = () => {
           {entries
             ? entries.map((entry, index) => (
                 <div
-                  className={"--" + entry.Rating + " entry"}
+                  className={
+                    "--" +
+                    entry.Rating +
+                    " entry" +
+                    (entry.Viewing ? " viewing" : "")
+                  }
                   key={index}
-                  onClick={() => handleViewFactors(entry)}
+                  onClick={() => toggleView(entry)}
                 >
-                  {entry.Factors ? (
+                  {entry.Viewing ? (
                     <div className="factorList">
-                      {factors?.map((factor) => (
-                        <div className={"--" + factor.Rating} onClick={handleResetFactors}>
+                      {entry.Factors?.map((factor, index) => (
+                        <span className={"--" + factor.Rating} key={index}>
                           {factor.Name}
-                        </div>
+                        </span>
                       ))}
                     </div>
                   ) : (
@@ -163,4 +180,5 @@ const History = () => {
     </>
   );
 };
+
 export default History;

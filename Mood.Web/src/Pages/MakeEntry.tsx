@@ -1,5 +1,5 @@
 import "./MakeEntry.css";
-import Entry from "../Types/Entry";
+import {Entry} from "../Types/Entry";
 import Factor from "../Types/Factor";
 import { useState } from "react";
 import Moods from "../Config/Moods";

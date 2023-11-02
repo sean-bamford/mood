@@ -1,6 +1,6 @@
 import Factor from './Factor';
 
-type Entry = {
+export type Entry = {
     Date: Date;
     Rating: number;
     Mood?: string;
@@ -8,4 +8,6 @@ type Entry = {
     Note?: string;
     };
 
-export default Entry;
+export interface ViewEntry extends Entry {
+    Viewing?: boolean;
+}
