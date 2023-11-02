@@ -1,5 +1,4 @@
 import "./MakeEntry.css";
-import Help from "../Components/Help";
 import Entry from "../Types/Entry";
 import Factor from "../Types/Factor";
 import { useState } from "react";
@@ -36,7 +35,9 @@ const MakeEntry = () => {
     //setShowContinue(true);
   };
 
-  const handleMouseDown = () => {
+  const handleMouseDown = (factor: string) => {
+    const prevValue = factors.find((f) => f.Name === factor)?.Rating || 0;
+    setValue(prevValue);
     setIsDragging(true);
   };
 
@@ -52,7 +53,7 @@ const MakeEntry = () => {
       setValue(newValue);
       const newFactor: Factor = {
         Name: factor,
-        Rating: Math.round(Math.min(value / 8, 5)),
+        Rating: Math.round(Math.min(value / 6, 5)),
       };
       const newFactors = [
         ...factors.filter((f) => f.Name !== factor),
@@ -88,16 +89,59 @@ const MakeEntry = () => {
     // const parameters = { Factors: convertFactors(entry.Factors) };
 
     const query = `
-      
-    CREATE (newMood:Mood 
-        { Mood: $mood, Rating: $rating, Date: $date }
-      )
-      RETURN newMood`;
+    MATCH (previousEntry:Entry)
+    WITH previousEntry
+    ORDER BY previousEntry.Date DESC
+    LIMIT 1
+
+    CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date }),
+    (sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
+    (diet:Factor { Name: 'Diet', Rating: $dietRating }),
+    (connection:Factor { Name: 'Social Connection', Rating: $socialConnectionRating }),
+    (exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
+    (energy:Factor { Name: 'Energy', Rating: $energyRating }),
+    (stress:Factor { Name: 'Stress', Rating: $stressRating }),
+    (media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
+    (sleep)-[:BEFORE]->(newEntry), 
+    (sleep)-[:AFTER]->(previousEntry),
+    (diet)-[:ON]->(newEntry),
+    (diet)-[:AFTER]->(previousEntry),
+    (previousEntry)-[:BEFORE]->(diet),
+    (connection)-[:ON]->(newEntry),
+    (connection)-[:AFTER]->(previousEntry),
+    (previousEntry)-[:BEFORE]->(connection),
+    (exercise)-[:ON]->(newEntry),
+    (exercise)-[:AFTER]->(previousEntry),
+    (previousEntry)-[:BEFORE]->(exercise),
+    (energy)-[:ON]->(newEntry),
+    (energy)-[:AFTER]->(previousEntry),
+    (previousEntry)-[:BEFORE]->(energy),
+    (stress)-[:ON]->(newEntry),
+    (stress)-[:AFTER]->(previousEntry),
+    (previousEntry)-[:BEFORE]->(stress),
+    (media)-[:ON]->(newEntry),
+    (media)-[:AFTER]->(previousEntry),
+    (previousEntry)-[:BEFORE]->(media),
+    (diet)-[:WITH]->(connection),
+    (connection)-[:WITH]->(exercise),
+    (exercise)-[:WITH]->(energy),
+    (energy)-[:WITH]->(stress),
+    (stress)-[:WITH]->(media),
+    (previousEntry)-[:BEFORE]->(newEntry),
+    (newEntry)-[:AFTER]->(previousEntry)
+      `;
 
     const params = {
       mood: entry?.Mood,
       rating: entry?.Rating,
       date: entry?.Date.toLocaleDateString(),
+      sleepRating: factors.find((f) => f.Name === "Sleep")?.Rating,
+      dietRating: factors.find((f) => f.Name === "Diet")?.Rating,
+      socialConnectionRating: factors.find((f) => f.Name === "Social Connection")?.Rating,
+      exerciseRating: factors.find((f) => f.Name === "Exercise")?.Rating,
+      energyRating: factors.find((f) => f.Name === "Energy")?.Rating,
+      stressRating: factors.find((f) => f.Name === "Stress")?.Rating,
+      socialMediaUseRating: factors.find((f) => f.Name === "Social Media Use")?.Rating
     };
 
     // console.log(query, params);
@@ -106,9 +150,9 @@ const MakeEntry = () => {
     );
 
     //   `
-    //   MATCH (latestEntry:Entry)
-    //   WITH latestEntry
-    //   ORDER BY latestEntry.Date DESC
+    //   MATCH (previousEntry:Entry)
+    //   WITH previousEntry
+    //   ORDER BY previousEntry.Date DESC
     //   LIMIT 1
 
     //   CREATE (newEntry:Entry {
@@ -118,7 +162,7 @@ const MakeEntry = () => {
     //     Factors: $factors
     //   })
 
-    //   CREATE (latestEntry)-[:Preceded]->(newEntry)
+    //   CREATE (previousEntry)-[:Preceded]->(newEntry)
 
     //   CREATE (newFactor:Factors { Factors: $factors })
 
@@ -127,10 +171,14 @@ const MakeEntry = () => {
     //   RETURN newEntry
     // `
 
-    navigate("/home");
+    navigate("/");
   };
-const handleOpen = () => {setShowAbout(true)};
-  const onClose = () => {setShowAbout(false)};
+  const handleOpen = () => {
+    setShowAbout(true);
+  };
+  const onClose = () => {
+    setShowAbout(false);
+  };
 
   return (
     <>
@@ -145,8 +193,16 @@ const handleOpen = () => {setShowAbout(true)};
           createPortal(
             <div className="about">
               <h2>About</h2>
-              <div>Click on one of the boxes to rate how you feel today. You can optionally click on a mood to record a specific emotion, then click and drag on any lifestyle factors to rate them for the day and determine any patterns over time.  </div><br />
-              <button className="close" onClick={onClose}>Close</button>
+              <div>
+                Click on one of the boxes to rate how you feel today. You can
+                optionally click on a mood to record a specific emotion, then
+                click and drag on any lifestyle factors to rate them for the day
+                and determine any patterns over time.{" "}
+              </div>
+              <br />
+              <button className="close" onClick={onClose}>
+                Close
+              </button>
             </div>,
             document.body
           )}
@@ -197,7 +253,7 @@ const handleOpen = () => {setShowAbout(true)};
                     "bubble factor --" +
                     factors.find((f) => f.Name === factor)?.Rating
                   }
-                  onMouseDown={handleMouseDown}
+                  onMouseDown={() => handleMouseDown(factor)}
                   onMouseMove={(e) => handleMouseMove(e, factor)}
                   onMouseUp={handleMouseUp}
                 >

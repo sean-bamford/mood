@@ -1,32 +1,11 @@
-
-/* .bubble::before {
-    content: '';
-    background-color: aliceblue;
-    position: absolute;
-    aspect-ratio: 1 / 1;
-    min-width: 10em;
-    padding: 2em;
-    border-radius: 50%;
-    transform-origin: bottom;
-    transform: rotateX(90deg) scale(1);
-    transform-style: preserve-3d;
-    box-shadow: 0 0 100px var(--text);
-    opacity: 1;
-    z-index: -1;
-    &:hover{
-        opacity: 1;
-    }
-} */
-
 .nav{
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+    margin-bottom: 5em;
 }
-.help {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    margin: 2em;
+
+.welcome {
+    text-align: center;
 }

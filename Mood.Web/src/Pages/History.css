@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     padding: 2em;
-    margin: 0 1em;
+    margin: 1em;
     /* background-image: linear-gradient(to bottom, var(--primary), var(--accent2)); */
     box-shadow: 0 -1em 2em var(--background) inset,
     0 0em 0.3em var(--text);
@@ -12,6 +12,7 @@
     height: 6em;
     border-radius: 1em;
     position: relative;
+    
 }
 .history {
     display: flex;
@@ -40,12 +41,19 @@ text-decoration: solid underline var(--primary);
     padding: 1em;
 }
 .refresh {
-    position: absolute;
+    position: fixed;
     right: 0;
     bottom: 0;
     margin: 2em;
 }
-
+.back {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    margin: 2em;
+    aspect-ratio: 1/1;
+    transform: scale(0.9);
+}
 .--1 {
     background-color: var(--1);
 }
@@ -60,4 +68,9 @@ text-decoration: solid underline var(--primary);
 }
 .--5 {
     background-color: var(--5);
+}
+
+.factorList {
+    text-align: center;
+    overflow: auto;
 }

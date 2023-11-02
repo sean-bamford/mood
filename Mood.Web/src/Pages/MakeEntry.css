@@ -1,18 +1,25 @@
 .selection {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
-  flex-wrap: wrap;
-  /* outline: 1px solid var(--text); */
-  min-width: 10em;
-  min-height: 10em;
+  justify-content: center;
+  flex-flow: row wrap;
+  /* outline: 5px solid var(--text); */
+  height: fit-content;
+  position: absolute;
+  top: 0;
+  container-type: inline-size;
+  width: inherit;
+  overflow: auto;
+  padding: 2em;
 }
+
 
 .selection > .factor {
   flex: 0;
   flex-direction: column;
   /* font-size: larger; */
   text-align: center;
+  transition: all 300ms ease-out;
   &:hover,
   &:focus-visible {
     transform: translateY(0);
@@ -21,6 +28,11 @@
       0 0px 25px var(--accent4);
   }
 }
+
+.selection > * {
+  flex: 0;
+}
+
 
 .question {
   background-color: var(--primary);
@@ -45,6 +57,8 @@
   text-align: center;
   position: absolute;
   bottom: 0;
+  left: 0;
+  right: 0;
 }
 button.continue {
   line-height: 2em;
@@ -56,7 +70,7 @@ button.continue {
 }
 .submit {
   background-color: var(--primary);
-  position: relative;
+  position: fixed;
   bottom: 0;
   margin: 2em;
   width: fit-content;
@@ -69,7 +83,7 @@ button.continue {
 .about {
   display: flex;
   flex-direction: column;
-  position: absolute;
+  position: fixed;
   left: 50%;
   top: 50%;
   transform: translateX(-50%) translateY(-50%);
@@ -77,14 +91,12 @@ button.continue {
   background-color: var(--secondary);
   padding: 1em;
   border-radius: 1em;
-  box-shadow:  0 -30px 80px var(--background) inset,
-    0 1px 1px var(--primary);
-    align-items: space-between;
+  box-shadow: 0 -30px 80px var(--background) inset, 0 1px 1px var(--primary);
+  align-items: space-between;
 }
-button.close{
-border-radius: 0.5em;
-margin: 1em;
-
+button.close {
+  border-radius: 0.5em;
+  margin: 1em;
 }
 .--1 {
   background-color: var(--1);
@@ -100,4 +112,27 @@ margin: 1em;
 }
 .--5 {
   background-color: var(--5);
+}
+@container (inline-size < 448px) {
+  .selection > .bubble:last-child {
+    margin-bottom: 6em;
+  }
+  .selection > .bubble:first-child {
+    margin-top: 1em;
+  }
+}
+
+/* @container (inline-size < 571px) {
+  .submit {
+    color: var(--secondary);
+  }
+} */
+
+
+@media (min-width: 735px ) {
+  .selection:not(.history) {
+    height: fit-content;
+    top: unset;
+    margin-bottom: 4em;
+  }
 }
