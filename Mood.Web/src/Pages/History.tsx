@@ -148,13 +148,13 @@ const History = () => {
                   onClick={() => toggleView(entry)}
                 >
                   {entry.Viewing ? (
-                    <div className="factorList">
+                    <span className="factorList">
                       {entry.Factors?.map((factor, index) => (
-                        <span className={"--" + factor.Rating} key={index}>
-                          {factor.Name}
+                        <span className={"--" + factor.Rating + " factor"} key={index}>
+                          {factor.Name + " "}
                         </span>
                       ))}
-                    </div>
+                    </span>
                   ) : (
                     <>
                       <span className="date">
