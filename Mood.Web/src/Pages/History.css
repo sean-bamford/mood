@@ -5,62 +5,178 @@
   justify-content: center;
   padding: 2em;
   margin: 1em;
-  /* background-image: linear-gradient(to bottom, var(--primary), var(--accent2)); */
   box-shadow: 0 -1em 2em var(--background) inset, 0 0em 0.3em var(--text);
   aspect-ratio: 1/1;
   height: 6em;
   border-radius: 1em;
   position: relative;
   &.viewing {
-    animation: cardflip 0.8s linear forwards;
+    animation: cardFlip 0.8s linear alternate both, colorFlip 0.8s steps(2, jump-none) both;
     height: 10em;
     width: 10em;
     box-sizing: border-box;
     padding: 1em 0.9em;
-    background-color: var(--text);
     box-shadow: 0 -0.5em 2em var(--background) inset, 0 0em 0.3em var(--text);
-    
+    .date,
+    .mood,
+    .rating {
+      animation: frontFlip 0.8s linear alternate both;
+    }
+    &>.factorList {
+      animation: backFlip 0.8s linear alternate both;
+    }
+  }
+  &.reverse {
+    animation: cardFlipReverse 0.8s linear alternate both, colorFlipReverse 0.8s steps(2, jump-none) both;
+
+    .date,
+    .mood,
+    .rating {
+      animation: frontFlipReverse 0.8s linear alternate both;
+    }
+    &>.factorList {
+      animation: backFlipReverse 0.8s linear alternate both;
+    }
   }
 }
 
-@keyframes cardflip {
-  from {transform: perspective(1000px) rotateY(0deg)}
-  to {transform: perspective(1000px) rotateY(180deg)}
+@keyframes cardFlip {
+  0% {
+    transform: perspective(1000px) rotateY(0deg);
+
+  }
+
+  100% {
+    transform: perspective(1000px) rotateY(180deg);
+  }
 }
 
+@keyframes cardFlipReverse {
+  0% {
+    transform: perspective(1000px) rotateY(180deg);
+
+  }
+
+  100% {
+    transform: perspective(1000px) rotateY(360deg);
+  }
+}
+
+@keyframes colorFlip {
+  0% {}
+
+  100% {
+    background-color: currentColor;
+  }
+}
+
+@keyframes colorFlipReverse {
+  0% {
+    background-color: currentColor;
+  }
+
+  100% {}
+}
+
+@keyframes frontFlip {
+  0% {
+    transform: perspective(1000px) rotateY(0deg)
+  }
+
+  50% {
+    transform: perspective(1000px) rotateY(90deg)
+  }
+
+  100% {
+    transform: perspective(1000px) rotateY(90deg)
+  }
+}
+
+@keyframes frontFlipReverse {
+  0% {
+    transform: perspective(1000px) rotateY(270deg)
+  }
+
+  50% {
+    transform: perspective(1000px) rotateY(270deg)
+  }
+
+  100% {
+    transform: perspective(1000px) rotateY(360deg)
+  }
+}
+
+@keyframes backFlip{
+  0% {
+    transform: perspective(1000px) rotateY(-90deg)
+  }
+
+  50% {
+    transform: perspective(1000px) rotateY(-90deg)
+  }
+
+  100% {
+    transform: perspective(1000px) rotateY(-180deg)
+  }
+}
+
+@keyframes backFlipReverse {
+    0% {
+    transform: perspective(1000px) rotateY(-180deg)
+  }
+
+  50% {
+    transform: perspective(1000px) rotateY(-270deg)
+  }
+
+  100% {
+    transform: perspective(1000px) rotateY(-270deg)
+  }
+}
 .factorList {
+  position: absolute;
   justify-content: space-between;
   text-align: center;
   margin: 0;
-  > * {
-   margin: 3px 0;
+  transform: rotateY(90deg); 
+  >* {
+    margin: 3px 0;
     font-size: medium;
     line-height: 1em;
     text-shadow: var(--text) 0 0 5px, var(--text) 0 0 5px, var(--text) 0 0 9px, var(--text) 0 0 20px;
   }
 }
 
-.factorList > .factor {
+.factorList>.factor {
   background-color: transparent;
   word-wrap: normal;
   font-weight: 500;
-  
+
   &.--1 {
     color: var(--1);
   }
+
   &.--2 {
     color: var(--2);
   }
+
   &.--3 {
     color: var(--3);
   }
+
   &.--4 {
     color: var(--4);
   }
+
   &.--5 {
     color: var(--5);
+
   }
- 
+
+}
+
+.emptyFactors{
+  color: var(--background);
 }
 
 .history {
@@ -107,5 +223,3 @@ span {
   aspect-ratio: 1/1;
   transform: scale(0.9);
 }
-
-

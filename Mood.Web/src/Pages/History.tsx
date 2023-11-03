@@ -137,35 +137,49 @@ const History = () => {
         <div className="history selection">
           {entries
             ? entries.map((entry, index) => (
-                <div
-                  className={
-                    "--" +
-                    entry.Rating +
-                    " entry" +
-                    (entry.Viewing ? " viewing" : "")
-                  }
-                  key={index}
-                  onClick={() => toggleView(entry)}
-                >
-                  {entry.Viewing ? (
-                    <span className="factorList">
-                      {entry.Factors?.map((factor, index) => (
-                        <span className={"--" + factor.Rating + " factor"} key={index}>
-                          {factor.Name + " "}
-                        </span>
-                      ))}
-                    </span>
-                  ) : (
-                    <>
-                      <span className="date">
-                        <span>{entry.Date.toString()}</span>
+              <div
+                className={
+                  "--" +
+                  entry.Rating +
+                  " entry" +
+                  (entry.Viewing ? " viewing" : "") + (entry.Factors&&!entry.Viewing ? " reverse" : "")
+                }
+                key={index}
+                onClick={() => toggleView(entry)}
+              >
+                <>
+                  <span className="date">
+                    <span>{entry.Date.toString()}</span>
+                  </span>
+                  <h2 className="mood">{entry.Mood}</h2>
+                  <span className="rating">{entry.Rating.valueOf()}</span>
+                </>
+                <span className="factorList">
+                    {entry.Factors?.length ? (entry.Factors?.map((factor, index) => (
+                      <span className={"--" + factor.Rating + " factor"} key={index}>
+                        {factor.Name + " "}
                       </span>
-                      <h2 className="mood">{entry.Mood}</h2>
-                      <span className="rating">{entry.Rating.valueOf()}</span>
-                    </>
-                  )}
-                </div>
-              ))
+                    ))) : <span className="emptyFactors">No recorded factors</span>}
+                  </span>
+                {/* {entry.Viewing ? (
+                  <span className="factorList">
+                    {entry.Factors?.map((factor, index) => (
+                      <span className={"--" + factor.Rating + " factor"} key={index}>
+                        {factor.Name + " "}
+                      </span>
+                    ))}
+                  </span>
+                ) : (
+                  <>
+                    <span className="date">
+                      <span>{entry.Date.toString()}</span>
+                    </span>
+                    <h2 className="mood">{entry.Mood}</h2>
+                    <span className="rating">{entry.Rating.valueOf()}</span>
+                  </>
+                )} */}
+              </div>
+            ))
             : null}
         </div>
 
