@@ -41,10 +41,10 @@ const History = () => {
       return record.get(0).properties;
     });
     return factors.sort((a, b) => {
-      if (a.Name < b.Name) {
-        return -1;
-      } else {
+      if (a.Name.length < b.Name.length) {
         return 0;
+      } else {
+        return 1;
       }
     });
   }

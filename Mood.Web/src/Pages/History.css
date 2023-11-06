@@ -10,6 +10,7 @@
   height: 6em;
   border-radius: 1em;
   position: relative;
+
   &.viewing {
     animation: cardFlip 0.8s linear alternate both, colorFlip 0.8s steps(2, jump-none) both;
     height: 10em;
@@ -17,15 +18,18 @@
     box-sizing: border-box;
     padding: 1em 0.9em;
     box-shadow: 0 -0.5em 2em var(--background) inset, 0 0em 0.3em var(--text);
+
     .date,
     .mood,
     .rating {
       animation: frontFlip 0.8s linear alternate both;
     }
+
     &>.factorList {
-      animation: backFlip 0.8s linear alternate both;
+      animation: backFlip 0.8s cubic-bezier(0.39, 0.575, 0.565, 1) alternate both;
     }
   }
+
   &.reverse {
     animation: cardFlipReverse 0.8s linear alternate both, colorFlipReverse 0.8s steps(2, jump-none) both;
 
@@ -34,10 +38,103 @@
     .rating {
       animation: frontFlipReverse 0.8s linear alternate both;
     }
+
     &>.factorList {
-      animation: backFlipReverse 0.8s linear alternate both;
+      animation: backFlipReverse 0.8s cubic-bezier(0.12, 0, 0.39, 0) alternate both;
     }
   }
+}
+
+.factorList {
+  position: absolute;
+  justify-content: space-between;
+  text-align: center;
+  margin: 0;
+  transform: rotateY(90deg);
+
+  >* {
+    margin: 50px 0;
+    font-size: medium;
+    line-height: 1em;
+    text-shadow: var(--text) 0 0 5px, var(--text) 0 0 5px, var(--text) 0 0 9px, var(--text) 0 0 20px;
+  }
+}
+
+.factorList>.factor {
+  background-color: transparent;
+  word-wrap: normal;
+  font-weight: 500;
+
+  &.--1 {
+    color: var(--1);
+  }
+
+  &.--2 {
+    color: var(--2);
+  }
+
+  &.--3 {
+    color: var(--3);
+  }
+
+  &.--4 {
+    color: var(--4);
+  }
+
+  &.--5 {
+    color: var(--5);
+
+  }
+
+}
+
+.emptyFactors {
+  color: var(--background);
+}
+
+.history {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+span {
+  font-size: large;
+}
+
+.date {
+  position: absolute;
+  padding: 1em;
+  top: 0;
+  font-style: italic;
+}
+
+.mood {
+  text-shadow: 0px 0px 0.2em var(--background);
+  text-decoration: solid underline var(--primary);
+}
+
+.rating {
+  position: absolute;
+  bottom: 0;
+  padding: 1em;
+}
+
+.refresh {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  margin: 2em;
+}
+
+.back {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  margin: 2em;
+  aspect-ratio: 1/1;
+  transform: scale(0.9);
 }
 
 @keyframes cardFlip {
@@ -106,7 +203,7 @@
   }
 }
 
-@keyframes backFlip{
+@keyframes backFlip {
   0% {
     transform: perspective(1000px) rotateY(-90deg)
   }
@@ -121,7 +218,7 @@
 }
 
 @keyframes backFlipReverse {
-    0% {
+  0% {
     transform: perspective(1000px) rotateY(-180deg)
   }
 
@@ -132,94 +229,4 @@
   100% {
     transform: perspective(1000px) rotateY(-270deg)
   }
-}
-.factorList {
-  position: absolute;
-  justify-content: space-between;
-  text-align: center;
-  margin: 0;
-  transform: rotateY(90deg); 
-  >* {
-    margin: 3px 0;
-    font-size: medium;
-    line-height: 1em;
-    text-shadow: var(--text) 0 0 5px, var(--text) 0 0 5px, var(--text) 0 0 9px, var(--text) 0 0 20px;
-  }
-}
-
-.factorList>.factor {
-  background-color: transparent;
-  word-wrap: normal;
-  font-weight: 500;
-
-  &.--1 {
-    color: var(--1);
-  }
-
-  &.--2 {
-    color: var(--2);
-  }
-
-  &.--3 {
-    color: var(--3);
-  }
-
-  &.--4 {
-    color: var(--4);
-  }
-
-  &.--5 {
-    color: var(--5);
-
-  }
-
-}
-
-.emptyFactors{
-  color: var(--background);
-}
-
-.history {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-span {
-  font-size: large;
-}
-
-.date {
-  position: absolute;
-  padding: 1em;
-  top: 0;
-  font-style: italic;
-}
-
-.mood {
-  text-shadow: 0px 0px 0.2em var(--background);
-  text-decoration: solid underline var(--primary);
-}
-
-.rating {
-  position: absolute;
-  bottom: 0;
-  padding: 1em;
-}
-
-.refresh {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  margin: 2em;
-}
-
-.back {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  margin: 2em;
-  aspect-ratio: 1/1;
-  transform: scale(0.9);
 }
