@@ -1,25 +1,9 @@
-.selection {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-flow: row wrap;
-  /* outline: 5px solid var(--text); */
-  height: fit-content;
-  position: absolute;
-  top: 0;
-  container-type: inline-size;
-  width: inherit;
-  overflow: auto;
-  padding: 2em;
-}
-
-
-.selection > .factor {
+.selection>.factor {
   flex: 0;
   flex-direction: column;
-  /* font-size: larger; */
   text-align: center;
   transition: all 300ms ease-out;
+
   &:hover,
   &:focus-visible {
     transform: translateY(0);
@@ -28,11 +12,6 @@
       0 0px 25px var(--accent4);
   }
 }
-
-.selection > * {
-  flex: 0;
-}
-
 
 .question {
   background-color: var(--primary);
@@ -43,9 +22,6 @@
   border-radius: 1em;
   font-size: 1em;
   font-weight: 500;
-  /* font-size: large; */
-  /* top: calc(50% - 7em);
-  z-index: -1; */
   box-shadow: 0 0 0em var(--text) inset, 0 -2em 4em var(--background) inset,
     0 0.1em 0.5em var(--accent1) inset, 0 1px 1px var(--primary),
     0 0px 0.5em var(--accent4);
@@ -60,6 +36,7 @@
   left: 0;
   right: 0;
 }
+
 button.continue {
   line-height: 2em;
   aspect-ratio: 1/1;
@@ -68,6 +45,7 @@ button.continue {
   background-color: transparent;
   box-shadow: 0 0 0.1em var(--background) inset;
 }
+
 .submit {
   background-color: var(--primary);
   position: fixed;
@@ -80,59 +58,7 @@ button.continue {
     0 0px 0.5em var(--accent4);
 }
 
-.about {
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  text-align: center;
-  background-color: var(--secondary);
-  padding: 1em;
-  border-radius: 1em;
-  box-shadow: 0 -30px 80px var(--background) inset, 0 1px 1px var(--primary);
-  align-items: space-between;
-}
 button.close {
   border-radius: 0.5em;
   margin: 1em;
-}
-.--1 {
-  background-color: var(--1);
-}
-.--2 {
-  background-color: var(--2);
-}
-.--3 {
-  background-color: var(--3);
-}
-.--4 {
-  background-color: var(--4);
-}
-.--5 {
-  background-color: var(--5);
-}
-@container (inline-size < 448px) {
-  .selection > .bubble:last-child {
-    margin-bottom: 6em;
-  }
-  .selection > .bubble:first-child {
-    margin-top: 1em;
-  }
-}
-
-/* @container (inline-size < 571px) {
-  .submit {
-    color: var(--secondary);
-  }
-} */
-
-
-@media (min-width: 735px ) {
-  .selection:not(.history) {
-    height: fit-content;
-    top: unset;
-    margin-bottom: 4em;
-  }
 }

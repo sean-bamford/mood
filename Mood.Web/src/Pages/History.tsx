@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom";
 import "./History.css";
 import { ViewEntry } from "../Types/Entry";
 import Factor from "../Types/Factor";
+import { createPortal } from "react-dom";
 
 const History = () => {
   const [records, setRecords] = useState<RecordShape[]>();
   const [entries, setEntries] = useState<ViewEntry[]>();
+  const [showWarning, setShowWarning] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,11 +44,11 @@ const History = () => {
     });
     return factors.sort((a, b) => {
       if (a.Name.length < b.Name.length) {
-        return 0;
+        return -1;
       } else {
-        return 1;
+        return 0;
       }
-    });
+    }).reverse();
   }
 
   useEffect(() => {
@@ -63,14 +65,24 @@ const History = () => {
   };
 
   const handleReset = () => {
-    const query = `
-    MATCH (n)
-    DETACH DELETE n
-    `;
-    queryDatabase(query).then((result) =>
-      console.log(result?.summary?.counters.updates())
-    );
+    setShowWarning(true);
   };
+
+  const onConfirm = () => {
+    setShowWarning(false);
+    // const query = `
+    // MATCH (n)
+    // DETACH DELETE n
+    // `;
+    // queryDatabase(query).then((result) =>
+    //   console.log(result?.summary?.counters.updates())
+    // );
+  };
+  const onClose = () => {
+    setShowWarning(false);
+  }
+
+
 
   const toggleView = (entry: ViewEntry) => {
     const newEntries: ViewEntry[] = entries ? [...entries] : [];
@@ -134,6 +146,25 @@ const History = () => {
         <p>View your past entries.</p>
       </div>
       <div className="content">
+        {showWarning &&
+          createPortal(
+            <div className="about">
+              <h2>Reset History?</h2>
+              <div>
+                Click Confirm to erase your entry history. This cannot be undone.{" "}
+              </div>
+              <br />
+              <div className="clearButtons">
+              <button className="clear" onClick={onConfirm}>
+                Confirm
+              </button>
+              <button className="clear" onClick={onClose}>
+                Close
+              </button>
+              </div>
+            </div>,
+            document.body
+          )}
         <div className="history selection">
           {entries
             ? entries.map((entry, index) => (
@@ -142,7 +173,7 @@ const History = () => {
                   "--" +
                   entry.Rating +
                   " entry" +
-                  (entry.Viewing ? " viewing" : "") + (entry.Factors&&!entry.Viewing ? " reverse" : "")
+                  (entry.Viewing ? " viewing" : "") + (entry.Factors && !entry.Viewing ? " reverse" : "")
                 }
                 key={index}
                 onClick={() => toggleView(entry)}
@@ -155,12 +186,12 @@ const History = () => {
                   <span className="rating">{entry.Rating.valueOf()}</span>
                 </>
                 <span className="factorList">
-                    {entry.Factors?.length ? (entry.Factors?.map((factor, index) => (
-                      <span className={"--" + factor.Rating + " factor"} key={index}>
-                        {factor.Name + " "}
-                      </span>
-                    ))) : <span className="emptyFactors">No recorded factors</span>}
-                  </span>
+                  {entry.Factors?.length ? (entry.Factors?.map((factor, index) => (
+                    <span className={"--" + factor.Rating + " factor"} key={index}>
+                      {factor.Name+ " "}
+                    </span>
+                  ))) : <span className="emptyFactors">No recorded factors</span>}
+                </span>
                 {/* {entry.Viewing ? (
                   <span className="factorList">
                     {entry.Factors?.map((factor, index) => (
@@ -185,10 +216,10 @@ const History = () => {
 
         <br />
       </div>
-      <button className="back" onClick={handleBack}>
+      <button className="back" onClick={handleBack} title="Back to Home">
         ←
       </button>
-      <button className="refresh" onClick={handleReset}>
+      <button className="refresh" onClick={handleReset} title="Reset History">
         ↻
       </button>
     </>

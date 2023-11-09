@@ -1,5 +1,5 @@
 import "./MakeEntry.css";
-import {Entry} from "../Types/Entry";
+import { Entry } from "../Types/Entry";
 import Factor from "../Types/Factor";
 import { useState } from "react";
 import Moods from "../Config/Moods";
@@ -14,7 +14,7 @@ const MakeEntry = () => {
   const [showMoods, setShowMoods] = useState<boolean>(false);
   const [showAbout, setShowAbout] = useState<boolean>(false);
   const [factors, setFactors] = useState<Factor[]>([]);
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState<number>(0);
   const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
 
@@ -36,7 +36,8 @@ const MakeEntry = () => {
   };
 
   const handleMouseDown = (factor: string) => {
-    const prevValue = factors.find((f) => f.Name === factor)?.Rating || 0;
+    let prevValue = factors.find((f) => f.Name === factor)?.Rating;
+    if (prevValue === undefined) { prevValue = 24 } else { prevValue = prevValue * 24 } // We set the rating by dividing the number of pixels traversed by 24, so when reading the rating we need to multiply by 24 to ensure the rating isn't reset to 0 when rounded down.
     setValue(prevValue);
     setIsDragging(true);
   };
@@ -46,47 +47,32 @@ const MakeEntry = () => {
     factor: string
   ) => {
     if (isDragging) {
-      const newValue = Math.max(
-        0,
-        value + Math.round(e.movementX / 4) - Math.round(e.movementY / 4)
-      );
-      setValue(newValue);
-      const newFactor: Factor = {
-        Name: factor,
-        Rating: Math.round(Math.min(value / 6, 5)),
-      };
-      const newFactors = [
-        ...factors.filter((f) => f.Name !== factor),
-        newFactor,
-      ];
-      setFactors(newFactors);
-      const newEntry: Entry = {
-        ...entry!,
-        Factors: factors,
-      };
-      setEntry(newEntry);
+      const newValue = value + Math.round(e.movementX) - Math.round(e.movementY)
+      if (newValue > 0) {
+        setValue(newValue)
+        const newFactor: Factor = {
+          Name: factor,
+          Rating: Math.round(Math.min(value / 24, 5)),
+        };
+        const newFactors = [
+          ...factors.filter((f) => f.Name !== factor),
+          newFactor,
+        ];
+        setFactors(newFactors);
+        const newEntry: Entry = {
+          ...entry!,
+          Factors: factors,
+        };
+        setEntry(newEntry);
+      }
     }
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
-    setValue(0);
   };
 
   const handleSubmit = () => {
-    // function convertFactors(inputArray: Factor[]): { [key: string]: number } {
-    //   const keyValuePairs: { [key: string]: number } = {};
-
-    //   inputArray.forEach((item) => {
-    //     if (item.Rating) {
-    //       keyValuePairs[item.Name] = item.Rating;
-    //     }
-    //   });
-
-    //   return keyValuePairs;
-    // }
-
-    // const parameters = { Factors: convertFactors(entry.Factors) };
 
     const query = `
     MATCH (previousEntry:Entry)
@@ -144,35 +130,42 @@ const MakeEntry = () => {
       socialMediaUseRating: factors.find((f) => f.Name === "Social Media Use")?.Rating
     };
 
-    // console.log(query, params);
-    queryDatabase(query, params).then((result) =>
+    queryDatabase(query, params).then((result) => {
       console.log(result?.summary?.counters.updates())
+      if (result?.summary?.counters.updates().nodesCreated === 0) {
+        const firstTimeQuery = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date }),
+        (sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
+        (diet:Factor { Name: 'Diet', Rating: $dietRating }),
+        (connection:Factor { Name: 'Social Connection', Rating: $socialConnectionRating }),
+        (exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
+        (energy:Factor { Name: 'Energy', Rating: $energyRating }),
+        (stress:Factor { Name: 'Stress', Rating: $stressRating }),
+        (media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
+        (sleep)-[:BEFORE]->(newEntry),      
+        (diet)-[:ON]->(newEntry),
+        (connection)-[:ON]->(newEntry),
+        (exercise)-[:ON]->(newEntry),
+        (energy)-[:ON]->(newEntry),
+        (stress)-[:ON]->(newEntry),
+        (media)-[:ON]->(newEntry),
+        (diet)-[:WITH]->(connection),
+        (connection)-[:WITH]->(exercise),
+        (exercise)-[:WITH]->(energy),
+        (energy)-[:WITH]->(stress),
+        (stress)-[:WITH]->(media)`
+        queryDatabase(firstTimeQuery, params).then((res) => { console.log(res?.summary) })
+      }
+    }
+
     );
-
-    //   `
-    //   MATCH (previousEntry:Entry)
-    //   WITH previousEntry
-    //   ORDER BY previousEntry.Date DESC
-    //   LIMIT 1
-
-    //   CREATE (newEntry:Entry {
-    //     Mood: $mood,
-    //     Rating: $rating,
-    //     Date: $date,
-    //     Factors: $factors
-    //   })
-
-    //   CREATE (previousEntry)-[:Preceded]->(newEntry)
-
-    //   CREATE (newFactor:Factors { Factors: $factors })
-
-    //   CREATE (latestFactor)-[:Coincided_With]->(newFactor)
-
-    //   RETURN newEntry
-    // `
 
     navigate("/");
   };
+
+  const handleBack = () => {
+    navigate("/");
+  };
+
   const handleOpen = () => {
     setShowAbout(true);
   };
@@ -194,8 +187,8 @@ const MakeEntry = () => {
             <div className="about">
               <h2>About</h2>
               <div>
-                Click on one of the boxes to rate how you feel today. You can
-                optionally click on a mood to record a specific emotion, then
+                Click on the boxes to rate how you feel today. You can
+                optionally click a mood to record a specific emotion, then
                 click and drag on any lifestyle factors to rate them for the day
                 and determine any patterns over time.{" "}
               </div>
@@ -270,11 +263,13 @@ const MakeEntry = () => {
         )}
       </div>
       {(showFactors || showMoods) && (
-        <button className="submit" onClick={handleSubmit}>
+        <><button className="submit" onClick={handleSubmit}>
           ✓
-        </button>
-      )}
-      <button className="help" onClick={handleOpen}>
+        </button></>
+      )} <button className="back" onClick={handleBack} title="Back to Home">
+        ←
+      </button>
+      <button className="help" onClick={handleOpen} title="About">
         ?
       </button>
     </>
