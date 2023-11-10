@@ -129,6 +129,51 @@ const MakeEntry = () => {
       stressRating: factors.find((f) => f.Name === "Stress")?.Rating,
       socialMediaUseRating: factors.find((f) => f.Name === "Social Media Use")?.Rating
     };
+    // const query = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date })`;
+
+    // `, (sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
+    // (diet:Factor { Name: 'Diet', Rating: $dietRating }),
+    // (connection:Factor { Name: 'Social Connection', Rating: $socialconnectionRating }),
+    // (exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
+    // (energy:Factor { Name: 'Energy', Rating: $energyRating }),
+    // (stress:Factor { Name: 'Stress', Rating: $stressRating }),
+    // (media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
+    // (sleep)-[:BEFORE]->(newEntry), 
+    // (sleep)-[:AFTER]->(previousEntry),
+    // (diet)-[:ON]->(newEntry),
+    // (diet)-[:AFTER]->(previousEntry),
+    // (previousEntry)-[:BEFORE]->(diet),
+    // (connection)-[:ON]->(newEntry),
+    // (connection)-[:AFTER]->(previousEntry),
+    // (previousEntry)-[:BEFORE]->(connection),
+    // (exercise)-[:ON]->(newEntry),
+    // (exercise)-[:AFTER]->(previousEntry),
+    // (previousEntry)-[:BEFORE]->(exercise),
+    // (energy)-[:ON]->(newEntry),
+    // (energy)-[:AFTER]->(previousEntry),
+    // (previousEntry)-[:BEFORE]->(energy),
+    // (stress)-[:ON]->(newEntry),
+    // (stress)-[:AFTER]->(previousEntry),
+    // (previousEntry)-[:BEFORE]->(stress),
+    // (media)-[:ON]->(newEntry),
+    // (media)-[:AFTER]->(previousEntry),
+    // (previousEntry)-[:BEFORE]->(media),
+    // (diet)-[:WITH]->(connection),
+    // (connection)-[:WITH]->(exercise),
+    // (exercise)-[:WITH]->(energy),
+    // (energy)-[:WITH]->(stress),
+    // (stress)-[:WITH]->(media),
+    // (previousEntry)-[:BEFORE]->(newEntry),
+    // (newEntry)-[:AFTER]->(previousEntry)
+    //   `;
+    // const params: { [key: string]: string | number | undefined } = {
+    //   mood: entry?.Mood,
+    //   rating: entry?.Rating,
+    //   date: entry?.Date.toLocaleDateString()}
+
+    //   factors.forEach((factor) => {
+    //     params[factor.Name.toLowerCase().replace(" ", "") + "Rating"] = factor.Rating
+    //   }) //query WIP to add individual factors to an entry instead of forcing the user to rate all factors at once.
 
     queryDatabase(query, params).then((result) => {
       console.log(result?.summary?.counters.updates())
@@ -152,7 +197,7 @@ const MakeEntry = () => {
         (connection)-[:WITH]->(exercise),
         (exercise)-[:WITH]->(energy),
         (energy)-[:WITH]->(stress),
-        (stress)-[:WITH]->(media)`
+        (stress)-[:WITH]->(media)` //Fixes an error when there's no previous node to connect to. Still needs to be updated as above to accept any combination of Factors.
         queryDatabase(firstTimeQuery, params).then((res) => { console.log(res?.summary) })
       }
     }

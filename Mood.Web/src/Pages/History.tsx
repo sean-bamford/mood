@@ -30,7 +30,7 @@ const History = () => {
   function convertToEntry(record: RecordShape): ViewEntry {
     const properties = Object(record.entry.properties);
     const entry: ViewEntry = {
-      Date: properties.Date,
+      Date: new Date(properties.Date),
       Rating: properties.Rating,
       Mood: properties.Mood,
       Viewing: false,
@@ -55,7 +55,7 @@ const History = () => {
     if (records) {
       const list: Array<ViewEntry> = records.map((record: RecordShape) => {
         return convertToEntry(record);
-      });
+      }).sort((a, b) => a.Date.getTime() - b.Date.getTime()).reverse();
       setEntries(list);
     }
   }, [records]);
@@ -77,7 +77,7 @@ const History = () => {
     // queryDatabase(query).then((result) =>
     //   console.log(result?.summary?.counters.updates())
     // );
-  };
+  }; //Prevented the query from running for safety. This would delete all data in the database.
   const onClose = () => {
     setShowWarning(false);
   }
@@ -109,7 +109,7 @@ const History = () => {
         MATCH(selectedEntry)<-[:BEFORE]-(f:Factor{Name: "Sleep"})
         RETURN f`;
 
-        const params = { date: entry.Date.toString() };
+        const params = { date: entry.Date.toLocaleDateString() };
 
         try {
           const result = await queryDatabase(query, params);
@@ -151,7 +151,7 @@ const History = () => {
             <div className="about">
               <h2>Reset History?</h2>
               <div>
-                Click Confirm to erase your entry history. This cannot be undone.{" "}
+                Click Confirm to erase your entry history. This cannot be undone.
               </div>
               <br />
               <div className="clearButtons">
@@ -180,7 +180,7 @@ const History = () => {
               >
                 <>
                   <span className="date">
-                    <span>{entry.Date.toString()}</span>
+                    <span>{entry.Date.toLocaleDateString()}</span>
                   </span>
                   <h2 className="mood">{entry.Mood}</h2>
                   <span className="rating">{entry.Rating.valueOf()}</span>
@@ -192,23 +192,6 @@ const History = () => {
                     </span>
                   ))) : <span className="emptyFactors">No recorded factors</span>}
                 </span>
-                {/* {entry.Viewing ? (
-                  <span className="factorList">
-                    {entry.Factors?.map((factor, index) => (
-                      <span className={"--" + factor.Rating + " factor"} key={index}>
-                        {factor.Name + " "}
-                      </span>
-                    ))}
-                  </span>
-                ) : (
-                  <>
-                    <span className="date">
-                      <span>{entry.Date.toString()}</span>
-                    </span>
-                    <h2 className="mood">{entry.Mood}</h2>
-                    <span className="rating">{entry.Rating.valueOf()}</span>
-                  </>
-                )} */}
               </div>
             ))
             : null}
