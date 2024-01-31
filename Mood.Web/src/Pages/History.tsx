@@ -70,14 +70,15 @@ const History = () => {
 
   const onConfirm = () => {
     setShowWarning(false);
-    // const query = `
-    // MATCH (n)
-    // DETACH DELETE n
-    // `;
-    // queryDatabase(query).then((result) =>
-    //   console.log(result?.summary?.counters.updates())
-    // );
-  }; //Prevented the query from running for safety. This would delete all data in the database.
+    const query = `
+    MATCH (n)
+    DETACH DELETE n
+    `;
+    queryDatabase(query).then((result) =>
+      console.log(result?.summary?.counters.updates())
+    );
+    navigate("/history");
+  }; 
   const onClose = () => {
     setShowWarning(false);
   }
