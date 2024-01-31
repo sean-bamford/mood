@@ -10,4 +10,5 @@ export type Entry = {
 
 export interface ViewEntry extends Entry {
     Viewing?: boolean;
+    Loaded?: boolean;
 }

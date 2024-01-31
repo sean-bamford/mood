@@ -10,7 +10,7 @@
   height: 6em;
   border-radius: 1em;
   position: relative;
-
+  animation: entryFade 1.5s forwards;
   &:hover,
   &:focus-visible {
     box-shadow:
@@ -162,10 +162,41 @@ span {
   flex: 1;
 }
 
+.loading {
+  animation: loadFade 1.5s ease forwards;
+  position: fixed;
+  top: 7em;
+}
+
 button.clear {
   border-radius: 0.5em;
   margin: 0.5em;
   flex: 1;
+}
+
+@keyframes loadFade {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes entryFade {
+  0% {
+    opacity: 0;
+    transform: translateY(50%);
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes cardFlip {

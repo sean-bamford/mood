@@ -11,6 +11,7 @@ const History = () => {
   const [records, setRecords] = useState<RecordShape[]>();
   const [entries, setEntries] = useState<ViewEntry[]>();
   const [showWarning, setShowWarning] = useState<boolean>(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>("Loading...");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +21,9 @@ const History = () => {
       );
       if (result) {
         setRecords(result.records.map((record: Record) => record.toObject()));
+        if (records?.length === 0) {
+          setLoadingMessage("No entries found.");
+        }
       } else {
         console.log("no result");
       }
@@ -34,6 +38,7 @@ const History = () => {
       Rating: properties.Rating,
       Mood: properties.Mood,
       Viewing: false,
+      Loaded: false
     };
     return entry;
   }
@@ -96,7 +101,7 @@ const History = () => {
 
   useEffect(() => {
     const handleViewFactors = async (entry: ViewEntry) => {
-      if (entry.Viewing && !entry.Factors) {
+      if (entry.Viewing && !entry.Factors && !entry.Loaded) {
         const query = `
         MATCH (selectedEntry:Entry)
         WHERE selectedEntry.Date = $date
@@ -121,6 +126,7 @@ const History = () => {
               newEntries[index] = {
                 ...entry,
                 Factors: convertToFactors(result),
+                Loaded: true
               };
               setEntries(newEntries);
             }
@@ -191,11 +197,11 @@ const History = () => {
                     <span className={"--" + factor.Rating + " factor"} key={index}>
                       {factor.Name+ " "}
                     </span>
-                  ))) : <span className="emptyFactors">No recorded factors</span>}
+                  ))) : <span className="emptyFactors">{entry.Loaded ? "No factors recorded." : "Loading Factors..."}</span>}
                 </span>
               </div>
             ))
-            : null}
+            : <div className="loading">{loadingMessage}</div>}
         </div>
 
         <br />

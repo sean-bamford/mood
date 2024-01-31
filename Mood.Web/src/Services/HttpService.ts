@@ -17,8 +17,7 @@ async function queryDatabase(query?: string, parameters?: object) {
   } finally {
     try {
       if (parameters) {
-        result = await driver.executeQuery(query, parameters);
-        
+        result = await driver.executeQuery(query, parameters);  
       } else {
         result = await driver.executeQuery(query);
       }
