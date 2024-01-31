@@ -1,7 +1,7 @@
 import "./MakeEntry.css";
 import { Entry } from "../Types/Entry";
 import Factor from "../Types/Factor";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Moods from "../Config/Moods";
 import Factors from "../Config/Factors";
 import queryDatabase from "../Services/HttpService";
@@ -12,11 +12,21 @@ const MakeEntry = () => {
   const [entry, setEntry] = useState<Entry>();
   const [showFactors, setShowFactors] = useState<boolean>(false);
   const [showMoods, setShowMoods] = useState<boolean>(false);
+  const [isFirstEntry, setIsFirstEntry] = useState<boolean>(false);
   const [showAbout, setShowAbout] = useState<boolean>(false);
   const [factors, setFactors] = useState<Factor[]>([]);
   const [value, setValue] = useState<number>(0);
   const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => { //check if this is the first entry
+    const loadData = async () => {
+      await queryDatabase(`MATCH (e:Entry) RETURN COUNT(e) AS entryCount;`).then((res): void => {
+        if(res?.records[0].get(0).toNumber() == 0) {setIsFirstEntry(true); setShowAbout(true)} 
+      })
+    };
+    loadData();
+  }, []);
 
   const handleRate = (rating: number) => {
     const newEntry = { Rating: rating, Date: new Date() };
@@ -74,50 +84,8 @@ const MakeEntry = () => {
 
   const handleSubmit = () => {
 
-    const query = `
-    MATCH (previousEntry:Entry)
-    WITH previousEntry
-    ORDER BY previousEntry.Date DESC
-    LIMIT 1
-
-    CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date }),
-    (sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
-    (diet:Factor { Name: 'Diet', Rating: $dietRating }),
-    (connection:Factor { Name: 'Social Connection', Rating: $socialConnectionRating }),
-    (exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
-    (energy:Factor { Name: 'Energy', Rating: $energyRating }),
-    (stress:Factor { Name: 'Stress', Rating: $stressRating }),
-    (media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
-    (sleep)-[:BEFORE]->(newEntry), 
-    (sleep)-[:AFTER]->(previousEntry),
-    (diet)-[:ON]->(newEntry),
-    (diet)-[:AFTER]->(previousEntry),
-    (previousEntry)-[:BEFORE]->(diet),
-    (connection)-[:ON]->(newEntry),
-    (connection)-[:AFTER]->(previousEntry),
-    (previousEntry)-[:BEFORE]->(connection),
-    (exercise)-[:ON]->(newEntry),
-    (exercise)-[:AFTER]->(previousEntry),
-    (previousEntry)-[:BEFORE]->(exercise),
-    (energy)-[:ON]->(newEntry),
-    (energy)-[:AFTER]->(previousEntry),
-    (previousEntry)-[:BEFORE]->(energy),
-    (stress)-[:ON]->(newEntry),
-    (stress)-[:AFTER]->(previousEntry),
-    (previousEntry)-[:BEFORE]->(stress),
-    (media)-[:ON]->(newEntry),
-    (media)-[:AFTER]->(previousEntry),
-    (previousEntry)-[:BEFORE]->(media),
-    (diet)-[:WITH]->(connection),
-    (connection)-[:WITH]->(exercise),
-    (exercise)-[:WITH]->(energy),
-    (energy)-[:WITH]->(stress),
-    (stress)-[:WITH]->(media),
-    (previousEntry)-[:BEFORE]->(newEntry),
-    (newEntry)-[:AFTER]->(previousEntry)
-      `;
-
-    const params = {
+    //create query parameters for Entry and Factors
+    const params: { [key: string]: unknown } = {
       mood: entry?.Mood,
       rating: entry?.Rating,
       date: entry?.Date.toLocaleDateString(),
@@ -129,75 +97,69 @@ const MakeEntry = () => {
       stressRating: factors.find((f) => f.Name === "Stress")?.Rating,
       socialMediaUseRating: factors.find((f) => f.Name === "Social Media Use")?.Rating
     };
-    // const query = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date })`;
+    //Remove any Factors that haven't been rated (and are thus undefined)
+    Object.entries(params).forEach(([property, value]) => {
+      if (value === undefined) delete params[property];
+    });
 
-    // `, (sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
-    // (diet:Factor { Name: 'Diet', Rating: $dietRating }),
-    // (connection:Factor { Name: 'Social Connection', Rating: $socialconnectionRating }),
-    // (exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
-    // (energy:Factor { Name: 'Energy', Rating: $energyRating }),
-    // (stress:Factor { Name: 'Stress', Rating: $stressRating }),
-    // (media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
-    // (sleep)-[:BEFORE]->(newEntry), 
-    // (sleep)-[:AFTER]->(previousEntry),
-    // (diet)-[:ON]->(newEntry),
-    // (diet)-[:AFTER]->(previousEntry),
-    // (previousEntry)-[:BEFORE]->(diet),
-    // (connection)-[:ON]->(newEntry),
-    // (connection)-[:AFTER]->(previousEntry),
-    // (previousEntry)-[:BEFORE]->(connection),
-    // (exercise)-[:ON]->(newEntry),
-    // (exercise)-[:AFTER]->(previousEntry),
-    // (previousEntry)-[:BEFORE]->(exercise),
-    // (energy)-[:ON]->(newEntry),
-    // (energy)-[:AFTER]->(previousEntry),
-    // (previousEntry)-[:BEFORE]->(energy),
-    // (stress)-[:ON]->(newEntry),
-    // (stress)-[:AFTER]->(previousEntry),
-    // (previousEntry)-[:BEFORE]->(stress),
-    // (media)-[:ON]->(newEntry),
-    // (media)-[:AFTER]->(previousEntry),
-    // (previousEntry)-[:BEFORE]->(media),
-    // (diet)-[:WITH]->(connection),
-    // (connection)-[:WITH]->(exercise),
-    // (exercise)-[:WITH]->(energy),
-    // (energy)-[:WITH]->(stress),
-    // (stress)-[:WITH]->(media),
-    // (previousEntry)-[:BEFORE]->(newEntry),
-    // (newEntry)-[:AFTER]->(previousEntry)
-    //   `;
-    // const params: { [key: string]: string | number | undefined } = {
-    //   mood: entry?.Mood,
-    //   rating: entry?.Rating,
-    //   date: entry?.Date.toLocaleDateString()}
+    let query = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date })`
 
-    //   factors.forEach((factor) => {
-    //     params[factor.Name.toLowerCase().replace(" ", "") + "Rating"] = factor.Rating
-    //   }) //query WIP to add individual factors to an entry instead of forcing the user to rate all factors at once.
+    if (!isFirstEntry) {
+      query = `
+MATCH (previousEntry:Entry)
+WITH previousEntry
+ORDER BY previousEntry.Date DESC
+LIMIT 1
+      ` + query +
+`, (previousEntry)-[:BEFORE]->(newEntry),
+(newEntry)-[:AFTER]->(previousEntry)` 
+    }
+    if (entry?.Factors?.length === 7) {
+      query += `,
+(sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
+(diet:Factor { Name: 'Diet', Rating: $dietRating }),
+(connection:Factor { Name: 'Social Connection', Rating: $socialConnectionRating }),
+(exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
+(energy:Factor { Name: 'Energy', Rating: $energyRating }),
+(stress:Factor { Name: 'Stress', Rating: $stressRating }),
+(media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
+(sleep)-[:BEFORE]->(newEntry), 
+(diet)-[:ON]->(newEntry),
+(connection)-[:ON]->(newEntry),
+(exercise)-[:ON]->(newEntry),
+(energy)-[:ON]->(newEntry),
+(stress)-[:ON]->(newEntry),
+(media)-[:ON]->(newEntry),
+(diet)-[:WITH]->(connection),
+(connection)-[:WITH]->(exercise),
+(exercise)-[:WITH]->(energy),
+(energy)-[:WITH]->(stress),
+(stress)-[:WITH]->(media)`
+
+      if (!isFirstEntry) {
+        query += `
+, (sleep)<-[:AFTER]-(previousEntry),
+(diet)-[:AFTER]->(previousEntry),
+(previousEntry)-[:BEFORE]->(diet),
+(connection)-[:AFTER]->(previousEntry),
+(previousEntry)-[:BEFORE]->(connection),
+(exercise)-[:AFTER]->(previousEntry),
+(previousEntry)-[:BEFORE]->(exercise),
+(energy)-[:AFTER]->(previousEntry),
+(previousEntry)-[:BEFORE]->(energy),
+(stress)-[:AFTER]->(previousEntry),
+(previousEntry)-[:BEFORE]->(stress),
+(media)-[:AFTER]->(previousEntry),
+(previousEntry)-[:BEFORE]->(media)`
+      }
+    }
+
+
 
     queryDatabase(query, params).then((result) => {
       console.log(result?.summary?.counters.updates())
       if (result?.summary?.counters.updates().nodesCreated === 0) {
-        const firstTimeQuery = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date }),
-        (sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
-        (diet:Factor { Name: 'Diet', Rating: $dietRating }),
-        (connection:Factor { Name: 'Social Connection', Rating: $socialConnectionRating }),
-        (exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
-        (energy:Factor { Name: 'Energy', Rating: $energyRating }),
-        (stress:Factor { Name: 'Stress', Rating: $stressRating }),
-        (media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
-        (sleep)-[:BEFORE]->(newEntry),      
-        (diet)-[:ON]->(newEntry),
-        (connection)-[:ON]->(newEntry),
-        (exercise)-[:ON]->(newEntry),
-        (energy)-[:ON]->(newEntry),
-        (stress)-[:ON]->(newEntry),
-        (media)-[:ON]->(newEntry),
-        (diet)-[:WITH]->(connection),
-        (connection)-[:WITH]->(exercise),
-        (exercise)-[:WITH]->(energy),
-        (energy)-[:WITH]->(stress),
-        (stress)-[:WITH]->(media)` //Fixes an error when there's no previous node to connect to. Still needs to be updated as above to accept any combination of Factors.
+        const firstTimeQuery = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date })`
         queryDatabase(firstTimeQuery, params).then((res) => { console.log(res?.summary) })
       }
     }
@@ -307,7 +269,7 @@ const MakeEntry = () => {
           </div>
         )}
       </div>
-      {(showFactors || showMoods) && (
+      {showFactors && (entry?.Factors?.length === 7 || entry?.Factors?.length === undefined) && (
         <><button className="submit" onClick={handleSubmit}>
           ✓
         </button></>
@@ -321,3 +283,47 @@ const MakeEntry = () => {
   );
 };
 export default MakeEntry;
+
+
+// `
+//     MATCH (previousEntry:Entry)
+//     WITH previousEntry
+//     ORDER BY previousEntry.Date DESC
+//     LIMIT 1
+
+//     CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date }),
+//     (sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
+//     (diet:Factor { Name: 'Diet', Rating: $dietRating }),
+//     (connection:Factor { Name: 'Social Connection', Rating: $socialConnectionRating }),
+//     (exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
+//     (energy:Factor { Name: 'Energy', Rating: $energyRating }),
+//     (stress:Factor { Name: 'Stress', Rating: $stressRating }),
+//     (media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
+//     (sleep)-[:BEFORE]->(newEntry),
+//     (sleep)-[:AFTER]->(previousEntry),
+//     (diet)-[:ON]->(newEntry),
+//     (diet)-[:AFTER]->(previousEntry),
+//     (previousEntry)-[:BEFORE]->(diet),
+//     (connection)-[:ON]->(newEntry),
+//     (connection)-[:AFTER]->(previousEntry),
+//     (previousEntry)-[:BEFORE]->(connection),
+//     (exercise)-[:ON]->(newEntry),
+//     (exercise)-[:AFTER]->(previousEntry),
+//     (previousEntry)-[:BEFORE]->(exercise),
+//     (energy)-[:ON]->(newEntry),
+//     (energy)-[:AFTER]->(previousEntry),
+//     (previousEntry)-[:BEFORE]->(energy),
+//     (stress)-[:ON]->(newEntry),
+//     (stress)-[:AFTER]->(previousEntry),
+//     (previousEntry)-[:BEFORE]->(stress),
+//     (media)-[:ON]->(newEntry),
+//     (media)-[:AFTER]->(previousEntry),
+//     (previousEntry)-[:BEFORE]->(media),
+//     (diet)-[:WITH]->(connection),
+//     (connection)-[:WITH]->(exercise),
+//     (exercise)-[:WITH]->(energy),
+//     (energy)-[:WITH]->(stress),
+//     (stress)-[:WITH]->(media),
+//     (previousEntry)-[:BEFORE]->(newEntry),
+//     (newEntry)-[:AFTER]->(previousEntry)
+//       `
