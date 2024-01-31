@@ -9,7 +9,8 @@ async function queryDatabase(query?: string, parameters?: object) {
     query = "MATCH (n)-[r]-(m) return n,r,m";
   }
   try {
-    driver = db.driver(login.uri, db.auth.basic(login.user, login.password))
+    driver = db.driver(login.uri, db.auth.basic(login.user, login.password));
+    
     // await console.log(driver.getServerInfo(), driver.isEncrypted())
   } catch (err: unknown) {
     console.log(`Connection error:\n${err}`);
@@ -24,7 +25,7 @@ async function queryDatabase(query?: string, parameters?: object) {
       // driver.close();     
       return result;
     } catch (err: unknown) {
-      console.log(`Query error:\n${err}`);
+      console.log(`Query:\n${query}`,`Query error:\n${err}`);
       result = null;
       return result;
     }
