@@ -13,6 +13,7 @@ const MakeEntry = () => {
   const [showFactors, setShowFactors] = useState<boolean>(false);
   const [showMoods, setShowMoods] = useState<boolean>(false);
   const [isFirstEntry, setIsFirstEntry] = useState<boolean>(false);
+  const [isSameDayPost, setIsSameDayPost] = useState<boolean>(false);
   const [showAbout, setShowAbout] = useState<boolean>(false);
   const [factors, setFactors] = useState<Factor[]>([]);
   const [value, setValue] = useState<number>(0);
@@ -21,12 +22,24 @@ const MakeEntry = () => {
 
   useEffect(() => { //check if this is the first entry
     const loadData = async () => {
-      await queryDatabase(`MATCH (e:Entry) RETURN COUNT(e) AS entryCount;`).then((res): void => {
-        if(res?.records[0].get(0).toNumber() == 0) {setIsFirstEntry(true); setShowAbout(true)} 
+      await queryDatabase(`MATCH (e:Entry) RETURN COUNT(e) AS entryCount;`).then(async (res): Promise<void> => {
+        if (res?.records[0].get(0).toNumber() == 0) { setIsFirstEntry(true); setShowAbout(true) }
+        else {
+          const today = new Date();
+          await queryDatabase(`MATCH (n:Entry) WHERE n.Date = $date RETURN n;`, { date: today.toLocaleDateString() })
+            .then(async (res): Promise<void> => { if (res?.records?.length ?? 0 > 0) { setIsSameDayPost(true) } })
+        }
       })
     };
     loadData();
   }, []);
+
+  useEffect(() => {
+    if(isSameDayPost && entry?.Mood !== undefined && entry?.Rating !== undefined) {
+    handleSubmit();
+    navigate("/");}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entry, isSameDayPost]);
 
   const handleRate = (rating: number) => {
     const newEntry = { Rating: rating, Date: new Date() };
@@ -41,9 +54,10 @@ const MakeEntry = () => {
     };
     setEntry(newEntry);
     setShowMoods(false);
-    setShowFactors(true);
-    //setShowContinue(true);
-  };
+    if(!isSameDayPost) {
+      setShowFactors(true);
+      }
+    }
 
   const handleMouseDown = (factor: string) => {
     let prevValue = factors.find((f) => f.Name === factor)?.Rating;
@@ -105,68 +119,56 @@ const MakeEntry = () => {
     let query = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date })`
 
     if (!isFirstEntry) {
-      query = `
-MATCH (previousEntry:Entry)
-WITH previousEntry
-ORDER BY previousEntry.Date DESC
-LIMIT 1
-      ` + query +
-`, (previousEntry)-[:BEFORE]->(newEntry),
-(newEntry)-[:AFTER]->(previousEntry)` 
+      query = 
+        `MATCH (previousEntry:Entry)
+        WITH previousEntry
+        ORDER BY previousEntry.Date DESC
+        LIMIT 1 \n` + query +
+        `, (previousEntry)-[:BEFORE]->(newEntry),
+        (newEntry)-[:AFTER]->(previousEntry)`
     }
-    if (entry?.Factors?.length === 7) {
-      query += `,
-(sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
-(diet:Factor { Name: 'Diet', Rating: $dietRating }),
-(connection:Factor { Name: 'Social Connection', Rating: $socialConnectionRating }),
-(exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
-(energy:Factor { Name: 'Energy', Rating: $energyRating }),
-(stress:Factor { Name: 'Stress', Rating: $stressRating }),
-(media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
-(sleep)-[:BEFORE]->(newEntry), 
-(diet)-[:ON]->(newEntry),
-(connection)-[:ON]->(newEntry),
-(exercise)-[:ON]->(newEntry),
-(energy)-[:ON]->(newEntry),
-(stress)-[:ON]->(newEntry),
-(media)-[:ON]->(newEntry),
-(diet)-[:WITH]->(connection),
-(connection)-[:WITH]->(exercise),
-(exercise)-[:WITH]->(energy),
-(energy)-[:WITH]->(stress),
-(stress)-[:WITH]->(media)`
 
-      if (!isFirstEntry) {
-        query += `
-, (sleep)<-[:AFTER]-(previousEntry),
-(diet)-[:AFTER]->(previousEntry),
-(previousEntry)-[:BEFORE]->(diet),
-(connection)-[:AFTER]->(previousEntry),
-(previousEntry)-[:BEFORE]->(connection),
-(exercise)-[:AFTER]->(previousEntry),
-(previousEntry)-[:BEFORE]->(exercise),
-(energy)-[:AFTER]->(previousEntry),
-(previousEntry)-[:BEFORE]->(energy),
-(stress)-[:AFTER]->(previousEntry),
-(previousEntry)-[:BEFORE]->(stress),
-(media)-[:AFTER]->(previousEntry),
-(previousEntry)-[:BEFORE]->(media)`
+    if (entry?.Factors?.length === 7 && !isSameDayPost ) {
+      query += `, (sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
+      (diet:Factor { Name: 'Diet', Rating: $dietRating }),
+      (connection:Factor { Name: 'Social Connection', Rating: $socialConnectionRating }),
+      (exercise:Factor { Name: 'Exercise', Rating: $exerciseRating }),
+      (energy:Factor { Name: 'Energy', Rating: $energyRating }),
+      (stress:Factor { Name: 'Stress', Rating: $stressRating }),
+      (media:Factor { Name: 'Social Media Use', Rating: $socialMediaUseRating }),
+      (sleep)-[:BEFORE]->(newEntry), 
+      (diet)-[:ON]->(newEntry),
+      (connection)-[:ON]->(newEntry),
+      (exercise)-[:ON]->(newEntry),
+      (energy)-[:ON]->(newEntry),
+      (stress)-[:ON]->(newEntry),
+      (media)-[:ON]->(newEntry),
+      (diet)-[:WITH]->(connection),
+      (connection)-[:WITH]->(exercise),
+      (exercise)-[:WITH]->(energy),
+      (energy)-[:WITH]->(stress),
+      (stress)-[:WITH]->(media)`
+
+      if (!isFirstEntry && !isSameDayPost) {
+        query += `, (sleep)<-[:AFTER]-(previousEntry),
+      (diet)-[:AFTER]->(previousEntry),
+      (previousEntry)-[:BEFORE]->(diet),
+      (connection)-[:AFTER]->(previousEntry),
+      (previousEntry)-[:BEFORE]->(connection),
+      (exercise)-[:AFTER]->(previousEntry),
+      (previousEntry)-[:BEFORE]->(exercise),
+      (energy)-[:AFTER]->(previousEntry),
+      (previousEntry)-[:BEFORE]->(energy),
+      (stress)-[:AFTER]->(previousEntry),
+      (previousEntry)-[:BEFORE]->(stress),
+      (media)-[:AFTER]->(previousEntry),
+      (previousEntry)-[:BEFORE]->(media)`
       }
     }
 
-
-
-    queryDatabase(query, params).then((result) => {
-      console.log(result?.summary?.counters.updates())
-      if (result?.summary?.counters.updates().nodesCreated === 0) {
-        const firstTimeQuery = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date })`
-        queryDatabase(firstTimeQuery, params).then((res) => { console.log(res?.summary) })
-      }
-    }
-
-    );
-
-    navigate("/");
+    queryDatabase(query, params)
+    .catch(() => {return})
+    //navigate("/");
   };
 
   const handleBack = () => {
@@ -197,7 +199,7 @@ LIMIT 1
                 Click on the boxes to rate how you feel today. You can
                 optionally click a mood to record a specific emotion, then
                 click and drag on any lifestyle factors to rate them for the day
-                and determine any patterns over time.{" "}
+                and determine any patterns over time.{" "}{entry?.Mood}
               </div>
               <br />
               <button className="close" onClick={onClose}>
@@ -244,7 +246,7 @@ LIMIT 1
             })}
           </div>
         )}
-        {showFactors && !showMoods && (
+        {showFactors && !showMoods && !isSameDayPost &&(
           <div className="selection">
             {Object.keys(Factors).map((factor) => {
               return (
@@ -284,7 +286,7 @@ LIMIT 1
 };
 export default MakeEntry;
 
-
+//copy of working query in case of grave mistakes
 // `
 //     MATCH (previousEntry:Entry)
 //     WITH previousEntry
