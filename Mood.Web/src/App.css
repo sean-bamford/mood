@@ -1,8 +1,9 @@
 #root {
   margin: 0 auto;
   height: 100svh;
-  scrollbar-color:
-    var(--background) var(--primary);
+  scrollbar-color: transparent transparent;
+    /* var(--background) var(--primary); */
+  
 }
 .wrapper {
   min-width: 320px;
