@@ -168,7 +168,7 @@ const MakeEntry = () => {
 
     queryDatabase(query, params)
     .catch(() => {return})
-    //navigate("/");
+    navigate("/");
   };
 
   const handleBack = () => {

@@ -197,7 +197,7 @@ const History = () => {
                     <span className={"--" + factor.Rating + " factor"} key={index}>
                       {factor.Name+ " "}
                     </span>
-                  ))) : <span className="emptyFactors">{entry.Loaded ? "No factors recorded." : "Loading Factors..."}</span>}
+                  ))) : <span className={entry.Loaded ? "emptyFactors none" : "emptyFactors"}>{entry.Loaded ? "No factors recorded." : "Loading Factors..."}</span>}
                 </span>
               </div>
             ))

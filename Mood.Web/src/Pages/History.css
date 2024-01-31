@@ -41,7 +41,11 @@
 
     &>.factorList {
       animation: backFlip 0.8s cubic-bezier(0.39, 0.575, 0.565, 1) alternate both;
+      >.emptyFactors.none{
+        animation: factorFade 1s ease forwards;
+      }
     }
+    
   }
 
   &.reverse {
@@ -111,6 +115,13 @@
   color: var(--background);
 }
 
+@keyframes factorFade {
+  0% {
+    opacity: 0;
+  }
+
+  
+}
 .history {
   display: flex;
   align-items: center;
