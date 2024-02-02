@@ -1,23 +1,26 @@
 import "./MakeEntry.css";
 import { Entry } from "../Types/Entry";
 import Factor from "../Types/Factor";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import Moods from "../Config/Moods";
 import Factors from "../Config/Factors";
 import queryDatabase from "../Services/HttpService";
+import Note from "../Assets/note-icon";
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 
 const MakeEntry = () => {
   const [entry, setEntry] = useState<Entry>();
+  const [factors, setFactors] = useState<Factor[]>([]);
+  const [note, setNote] = useState<string>("");
+  const [value, setValue] = useState<number>(0);
+  const [isDragging, setIsDragging] = useState(false);
   const [showFactors, setShowFactors] = useState<boolean>(false);
   const [showMoods, setShowMoods] = useState<boolean>(false);
+  const [showNote, setShowNote] = useState<boolean>(false);
   const [isFirstEntry, setIsFirstEntry] = useState<boolean>(false);
   const [isSameDayPost, setIsSameDayPost] = useState<boolean>(false);
   const [showAbout, setShowAbout] = useState<boolean>(false);
-  const [factors, setFactors] = useState<Factor[]>([]);
-  const [value, setValue] = useState<number>(0);
-  const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => { //check if this is the first entry
@@ -35,10 +38,11 @@ const MakeEntry = () => {
   }, []);
 
   useEffect(() => {
-    if(isSameDayPost && entry?.Mood !== undefined && entry?.Rating !== undefined) {
-    handleSubmit();
-    navigate("/");}
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (isSameDayPost && entry?.Mood !== undefined && entry?.Rating !== undefined) {
+      handleSubmit();
+      navigate("/");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry, isSameDayPost]);
 
   const handleRate = (rating: number) => {
@@ -54,10 +58,19 @@ const MakeEntry = () => {
     };
     setEntry(newEntry);
     setShowMoods(false);
-    if(!isSameDayPost) {
+    if (!isSameDayPost) {
       setShowFactors(true);
-      }
     }
+  }
+
+  const handleNote = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setNote(event.target.value);
+    const newEntry: Entry = {
+      ...entry!,
+      Note: note,
+    };
+    setEntry(newEntry);
+  }
 
   const handleMouseDown = (factor: string) => {
     let prevValue = factors.find((f) => f.Name === factor)?.Rating;
@@ -103,6 +116,7 @@ const MakeEntry = () => {
       mood: entry?.Mood,
       rating: entry?.Rating,
       date: entry?.Date.toLocaleDateString(),
+      note: entry?.Note ?? "",
       sleepRating: factors.find((f) => f.Name === "Sleep")?.Rating,
       dietRating: factors.find((f) => f.Name === "Diet")?.Rating,
       socialConnectionRating: factors.find((f) => f.Name === "Social Connection")?.Rating,
@@ -116,10 +130,10 @@ const MakeEntry = () => {
       if (value === undefined) delete params[property];
     });
 
-    let query = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date })`
+    let query = `CREATE (newEntry:Entry {Mood: $mood, Rating: $rating, Date: $date, Note: $note})`
 
     if (!isFirstEntry) {
-      query = 
+      query =
         `MATCH (previousEntry:Entry)
         WITH previousEntry
         ORDER BY previousEntry.Date DESC
@@ -128,7 +142,7 @@ const MakeEntry = () => {
         (newEntry)-[:AFTER]->(previousEntry)`
     }
 
-    if (entry?.Factors?.length === 7 && !isSameDayPost ) {
+    if (entry?.Factors?.length === 7 && !isSameDayPost) {
       query += `, (sleep:Factor { Name: 'Sleep', Rating: $sleepRating }),
       (diet:Factor { Name: 'Diet', Rating: $dietRating }),
       (connection:Factor { Name: 'Social Connection', Rating: $socialConnectionRating }),
@@ -167,7 +181,7 @@ const MakeEntry = () => {
     }
 
     queryDatabase(query, params)
-    .catch(() => {return})
+      .catch(() => { return })
     navigate("/");
   };
 
@@ -175,10 +189,13 @@ const MakeEntry = () => {
     navigate("/");
   };
 
-  const handleOpen = () => {
-    setShowAbout(true);
+  const handleOpen = (isNote: boolean) => {
+    if(isNote) {setShowNote(true); setShowAbout(false)}
+    else{setShowAbout(true); setShowNote(false);}
+    
   };
   const onClose = () => {
+    setShowNote(false);
     setShowAbout(false);
   };
 
@@ -186,6 +203,7 @@ const MakeEntry = () => {
     <>
       <div className="header">
         <h1 className="title">Entry</h1>
+        {/* <Note /> */}
         {!showFactors && !showMoods && (
           <p className="welcome">How are you feeling?</p>
         )}
@@ -199,16 +217,31 @@ const MakeEntry = () => {
                 Click on the boxes to rate how you feel today. You can
                 optionally click a mood to record a specific emotion, then
                 click and drag on any lifestyle factors to rate them for the day
-                and determine any patterns over time.{" "}{entry?.Mood}
+                and determine any patterns over time.{" "}
               </div>
-              <br />
-              <button className="close" onClick={onClose}>
+              <div className="clearButtons">
+                <button className="close" onClick={onClose}>
                 Close
-              </button>
+                </button>
+              </div>
             </div>,
             document.body
           )}
-
+{showNote &&
+          createPortal(
+            <div className="about input">
+              <h2>Add a Note</h2>
+              <div>
+                <textarea value={note} onChange={handleNote} id="note" autoFocus maxLength={500} name="note input" rows={10}/>
+              </div>
+              <div className="clearButtons">
+                <button className="close" onClick={onClose}>
+                  Close
+                </button>
+              </div>
+            </div>,
+            document.body
+          )}
         {!showFactors && !showMoods && (
           <div className="selection">
             <button className="bubble" id="1" onClick={() => handleRate(1)}>
@@ -246,7 +279,7 @@ const MakeEntry = () => {
             })}
           </div>
         )}
-        {showFactors && !showMoods && !isSameDayPost &&(
+        {showFactors && !showMoods && !isSameDayPost && (
           <div className="selection">
             {Object.keys(Factors).map((factor) => {
               return (
@@ -271,14 +304,24 @@ const MakeEntry = () => {
           </div>
         )}
       </div>
+      {showMoods || (!showFactors && !showMoods) && (
+      <>
+        <button className="note" onClick={() => handleOpen(true)}>
+          <Note />
+        </button>
+      </>
+      )} 
       {showFactors && (entry?.Factors?.length === 7 || entry?.Factors?.length === undefined) && (
-        <><button className="submit" onClick={handleSubmit}>
+      <>
+        <button className="submit" onClick={handleSubmit}>
           ✓
-        </button></>
-      )} <button className="back" onClick={handleBack} title="Back to Home">
+        </button>
+      </>
+      )} 
+      <button className="back" onClick={handleBack} title="Back to Home">
         ←
       </button>
-      <button className="help" onClick={handleOpen} title="About">
+      <button className="help" onClick={() => handleOpen(false)} title="About">
         ?
       </button>
     </>

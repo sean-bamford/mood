@@ -154,7 +154,7 @@ margin: 1rem;
   border-radius: 1em;
   box-shadow:
     0 -1em 2em var(--background) inset, 0 0em 0.3em var(--text), 0 1em 2em var(--background);
-  align-items: space-between;
+    width: 30em;
 }
 
 ::-webkit-scrollbar {

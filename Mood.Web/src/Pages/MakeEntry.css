@@ -62,3 +62,43 @@ button.close {
   border-radius: 0.5em;
   margin: 1em;
 }
+
+.note{
+  background-color: var(--primary);
+  position: fixed;
+  display: flex;
+  align-items: center;
+  bottom: 0;
+  margin: 2em;
+  width: fit-content;
+  aspect-ratio: 1/1;
+  box-shadow: 0 0 0em var(--text) inset, 0 -0.6em 1em var(--background) inset,
+    0 0.1em 0.5em var(--accent1) inset, 0 1px 1px var(--primary),
+    0 0px 0.5em var(--accent4);
+    >*{
+      margin: 0;
+      width: 1em;
+      height: 1em;
+      background-color: transparent;
+      fill: var(--text);
+      /* filter: drop-shadow(0em 0.2em 0.2em var(--background)); */
+    }
+}
+
+
+textarea{
+  background-color: var(--background);
+  color: var(--text);
+  border-radius: 0.5em;
+  padding: 1em;
+  margin: 1em;
+  border: none;
+  font-family: system-ui;
+  font-weight: 500;
+  font-size: 1em;
+  max-width: 26em;
+  min-width: 26em;
+  min-height: 2em;
+  max-height: 26em;
+  word-wrap: wrap;
+}
