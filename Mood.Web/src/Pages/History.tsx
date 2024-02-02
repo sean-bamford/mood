@@ -29,7 +29,7 @@ const History = () => {
       }
     };
     loadData();
-  }, []);
+  }, [records?.length]);
 
   function convertToEntry(record: RecordShape): ViewEntry {
     const properties = Object(record.entry.properties);
