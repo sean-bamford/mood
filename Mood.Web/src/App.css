@@ -111,6 +111,8 @@
   right: 0;
   bottom: 0;
   margin: 2em;
+  width: 3.4em;
+  aspect-ratio: 1/1;
 }
 
 /* .header {

@@ -156,6 +156,8 @@ span {
   right: 0;
   bottom: 0;
   margin: 2em;
+  aspect-ratio: 1/1;
+  width: 3.4em;
 }
 
 .back {
@@ -164,7 +166,7 @@ span {
   bottom: 0;
   margin: 2em;
   aspect-ratio: 1/1;
-  transform: scale(0.9);
+  width: 3.4em;
 }
 
 .clearButtons {
