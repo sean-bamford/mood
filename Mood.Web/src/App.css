@@ -27,8 +27,25 @@
 .title {
   text-shadow: 0 0 10px var(--primary);
   text-align: center;
+  animation: glow 2s infinite alternate 
+  /* cubic-bezier(0.25, 0.46, 0.45, 0.94) */
+  ;
+  mix-blend-mode: screen;
 }
 
+@keyframes glow {
+  0% {
+    text-shadow: 0 0 6px var(--text);
+    /* box-shadow: 0 4em 90em var(--text); */
+  }
+  70% {
+    text-shadow: 0 0 12px var(--primary);
+  }
+  100% {
+    filter: blur(0.0002em);
+  }
+  
+}
 
 .content {
   display: flex;
@@ -63,7 +80,7 @@
 
 
 .bubble {
-  animation: bubble 0.8s ease-in-out forwards;
+  animation: bubble 0.8s ease-out forwards;
   background-color: var(--primary);
   border-radius: 1em;
   color: var(--text);
@@ -96,9 +113,12 @@
     transform: translateY(10svh);
   }
 
+100%{
+  transform: translateY(0);
+}
+
   100% {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -155,8 +175,9 @@ margin: 1rem;
   padding: 1em;
   border-radius: 1em;
   box-shadow:
-    0 -1em 2em var(--background) inset, 0 0em 0.3em var(--text), 0 1em 2em var(--background);
-    width: 30em;
+    0 -1em 7em var(--background) inset, 0 0em 0.3em var(--text), 0 1em 8em var(--background);
+  width: 30em;
+  animation: bubble 0.6s ease-in-out forwards;
 }
 
 ::-webkit-scrollbar {
@@ -242,7 +263,7 @@ button:focus-visible {
   background-color: var(--5);
 }
 
-/* @media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
@@ -255,4 +276,32 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-} */
+}
+
+@keyframes fadeInOut {
+  0% {
+      opacity: 0;
+  }
+  20% {
+      opacity: 1;
+  }
+
+  80% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+      opacity: 0;
+      transform: translateY(10svh);
+  }
+  100% {
+      opacity: 1;
+      /* transform: translateY(0); */
+  }
+
+}
