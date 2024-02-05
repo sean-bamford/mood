@@ -190,7 +190,7 @@ const MakeEntry = () => {
   };
 
   const handleOpen = (isNote: boolean) => {
-    if(isNote) {setShowNote(true); setShowAbout(false)}
+    if(isNote) {setShowNote(!showNote); setShowAbout(false)}
     else{setShowAbout(true); setShowNote(false);}
     
   };

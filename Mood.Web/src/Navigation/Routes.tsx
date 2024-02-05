@@ -5,6 +5,7 @@ import Pattern from "../Pages/Pattern";
 import Login from "../Pages/Login";
 import App from "../App";
 import MakeEntry from "../Pages/MakeEntry";
+import Test from "../Pages/Test";
 
 const Routes = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ const Routes = createBrowserRouter([
       { path: "/history", element: <History /> },
       { path: "/pattern", element: <Pattern /> },
       { path: "/login", element: <Login /> },
+      { path: "/test", element: <Test /> },
     ],
   },
 ]);

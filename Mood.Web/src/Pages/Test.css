@@ -1,0 +1,16 @@
+.time {
+    height: 2em;
+    width: 2em;
+display: grid;
+grid-template-columns: auto;
+
+}
+
+.times{
+    display: grid;
+    top: 0;
+    position: absolute;
+}
+.even{
+    background-color: var(--accent1);
+}
