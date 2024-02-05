@@ -12,6 +12,7 @@ const History = () => {
   const [entries, setEntries] = useState<ViewEntry[]>();
   const [showWarning, setShowWarning] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string>("Loading...");
+  const [fadeOut, setFadeOut] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -85,10 +86,23 @@ const History = () => {
     navigate("/history");
   }; 
   const onClose = () => {
-    setShowWarning(false);
+    setFadeOut(true);
   }
 
-
+  useEffect(() => {
+    if (fadeOut) {
+  
+      // Wait for the animation to complete before removing the element from the DOM
+      const timeoutId = setTimeout(() => {
+        // Set fadeOut back to false after the animation duration
+        setShowWarning(false);
+        setFadeOut(false);
+      }, 600); // Adjust the timeout based on your CSS animation duration
+  
+      // Clear the timeout when the component unmounts or when showAbout is set to true
+      return () => clearTimeout(timeoutId);
+    }
+  }, [fadeOut]);
 
   const toggleView = (entry: ViewEntry) => {
     const newEntries: ViewEntry[] = entries ? [...entries] : [];
@@ -155,7 +169,7 @@ const History = () => {
       <div className="content">
         {showWarning &&
           createPortal(
-            <div className="about">
+            <div className={`about ${fadeOut ? 'fadeOut' : ''}`}>
               <h2>Reset History?</h2>
               <div>
                 Click Confirm to erase your entry history. This cannot be undone.

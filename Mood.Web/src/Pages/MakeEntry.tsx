@@ -21,6 +21,7 @@ const MakeEntry = () => {
   const [isFirstEntry, setIsFirstEntry] = useState<boolean>(false);
   const [isSameDayPost, setIsSameDayPost] = useState<boolean>(false);
   const [showAbout, setShowAbout] = useState<boolean>(false);
+  const [fadeOut, setFadeOut] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => { //check if this is the first entry
@@ -44,6 +45,7 @@ const MakeEntry = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry, isSameDayPost]);
+
 
   const handleRate = (rating: number) => {
     const newEntry = { Rating: rating, Date: new Date() };
@@ -195,15 +197,31 @@ const MakeEntry = () => {
     
   };
   const onClose = () => {
-    setShowNote(false);
-    setShowAbout(false);
+    // setShowNote(false);
+    // setShowAbout(false);
+    setFadeOut(true)
   };
+
+  useEffect(() => {
+    if (fadeOut) {
+  
+      // Wait for the animation to complete before removing the element from the DOM
+      const timeoutId = setTimeout(() => {
+        // Set fadeOut back to false after the animation duration
+        setShowAbout(false);
+        setShowNote(false);
+        setFadeOut(false);
+      }, 600); // Adjust the timeout based on your CSS animation duration
+  
+      // Clear the timeout when the component unmounts or when showAbout is set to true
+      return () => clearTimeout(timeoutId);
+    }
+  }, [fadeOut]);
 
   return (
     <>
       <div className="header">
         <h1 className="title">Entry</h1>
-        {/* <Note /> */}
         {!showFactors && !showMoods && (
           <p className="welcome">How are you feeling?</p>
         )}
@@ -211,7 +229,7 @@ const MakeEntry = () => {
       <div className="content" onMouseUp={handleMouseUp}>
         {showAbout &&
           createPortal(
-            <div className="about">
+            <div className={`about ${fadeOut ? 'fadeOut' : ''}`}>
               <h2>About</h2>
               <div>
                 Click on the boxes to rate how you feel today. You can
@@ -229,7 +247,7 @@ const MakeEntry = () => {
           )}
 {showNote &&
           createPortal(
-            <div className="about input">
+            <div className={`about input ${fadeOut ? 'fadeOut' : ''}`}>
               <h2>Add a Note</h2>
               <div>
                 <textarea value={note} onChange={handleNote} id="note" autoFocus maxLength={500} name="note input" rows={10}/>
@@ -304,7 +322,7 @@ const MakeEntry = () => {
           </div>
         )}
       </div>
-      {showMoods || (!showFactors && !showMoods) && (
+      {(showMoods || !showFactors) && (
       <>
         <button className="note" onClick={() => handleOpen(true)}>
           <Note />

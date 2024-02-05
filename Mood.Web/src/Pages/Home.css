@@ -26,3 +26,22 @@
         opacity: 0;
     }
   }
+
+  
+.fadeNav {
+    animation: fadeNav 0.6s ease-in-out forwards;
+  }
+
+  
+  @keyframes fadeNav {
+    100% {
+      opacity: 0;
+      transform: translateY(10svh);
+      left: 50%;
+      top: 50%;
+    }
+  
+    0% {
+      opacity: 1;
+    }
+  }
