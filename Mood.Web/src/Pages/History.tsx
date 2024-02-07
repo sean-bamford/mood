@@ -6,12 +6,14 @@ import "./History.css";
 import { ViewEntry } from "../Types/Entry";
 import Factor from "../Types/Factor";
 import { createPortal } from "react-dom";
+import Note from "../Assets/note-icon";
+import Spinner from "../Assets/spinner";
 
 const History = () => {
   const [records, setRecords] = useState<RecordShape[]>();
   const [entries, setEntries] = useState<ViewEntry[]>();
   const [showWarning, setShowWarning] = useState<boolean>(false);
-  const [loadingMessage, setLoadingMessage] = useState<string>("Loading...");
+  const [loadingMessage, setLoadingMessage] = useState<string>("");
   const [fadeOut, setFadeOut] = useState(false);
   const navigate = useNavigate();
 
@@ -38,6 +40,7 @@ const History = () => {
       Date: new Date(properties.Date),
       Rating: properties.Rating,
       Mood: properties.Mood,
+      Note: properties.Note,
       Viewing: false,
       Loaded: false
     };
@@ -91,15 +94,11 @@ const History = () => {
 
   useEffect(() => {
     if (fadeOut) {
-  
-      // Wait for the animation to complete before removing the element from the DOM
       const timeoutId = setTimeout(() => {
-        // Set fadeOut back to false after the animation duration
         setShowWarning(false);
         setFadeOut(false);
-      }, 600); // Adjust the timeout based on your CSS animation duration
+      }, 600);
   
-      // Clear the timeout when the component unmounts or when showAbout is set to true
       return () => clearTimeout(timeoutId);
     }
   }, [fadeOut]);
@@ -164,7 +163,7 @@ const History = () => {
     <>
       <div className="header">
         <h1 className="title">History</h1>
-        <p>View your past entries.</p>
+        <p className="welcome">View your past entries.</p>
       </div>
       <div className="content">
         {showWarning &&
@@ -176,49 +175,49 @@ const History = () => {
               </div>
               <br />
               <div className="clearButtons">
-              <button className="clear" onClick={onConfirm}>
-                Confirm
-              </button>
-              <button className="clear" onClick={onClose}>
-                Close
-              </button>
+                <button className="clear" onClick={onConfirm}>
+                  Confirm
+                </button>
+                <button className="clear" onClick={onClose}>
+                  Close
+                </button>
               </div>
             </div>,
             document.body
           )}
         <div className="history selection">
-          {entries
-            ? entries.map((entry, index) => (
-              <div
-                className={
-                  "--" +
-                  entry.Rating +
-                  " entry" +
-                  (entry.Viewing ? " viewing" : "") + (entry.Factors && !entry.Viewing ? " reverse" : "")
-                }
-                key={index}
-                onClick={() => toggleView(entry)}
-              >
+          {entries ? 
+            entries.map((entry, index) => (
+              <div className={ "--" + entry.Rating +" entry" + (entry.Viewing ? " viewing" : "") + (entry.Factors && !entry.Viewing ? " reverse" : "")} key={index} onClick={() => toggleView(entry)}>
                 <>
                   <span className="date">
                     <span>{entry.Date.toLocaleDateString()}</span>
                   </span>
                   <h2 className="mood">{entry.Mood}</h2>
-                  <span className="rating">{entry.Rating.valueOf()}</span>
+                  <span className="rating">
+                    {entry.Rating.valueOf()}
+                  </span>
                 </>
                 <span className="factorList">
-                  {entry.Factors?.length ? (entry.Factors?.map((factor, index) => (
+                {entry.Note && 
+                <div className="noteIcon"><Note /></div>
+                }
+                {entry.Factors?.length ? 
+                (entry.Factors?.map((factor, index) => (
                     <span className={"--" + factor.Rating + " factor"} key={index}>
                       {factor.Name+ " "}
                     </span>
-                  ))) : <span className={entry.Loaded ? "emptyFactors none" : "emptyFactors"}>{entry.Loaded ? "No factors recorded." : "Loading Factors..."}</span>}
+                  ))) : 
+                  <span className={entry.Loaded ? "emptyFactors none" : "emptyFactors"}>
+                    {entry.Loaded ? "No factors recorded." : "Loading Factors..."}
+                  </span>}
                 </span>
               </div>
-            ))
-            : <div className="loading">{loadingMessage}</div>}
+            )): 
+            <div className="loading">
+              {loadingMessage ? loadingMessage : <Spinner />}
+            </div>}
         </div>
-
-        <br />
       </div>
       <button className="back" onClick={handleBack} title="Back to Home">
         ←

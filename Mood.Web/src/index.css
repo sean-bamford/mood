@@ -4,7 +4,8 @@
   font-weight: 400;
   color-scheme: normal;
   color: var(--text);
-  background-image: url(src/Assets/texture.jpg), radial-gradient(circle at top, var(--background) 90%, #000000 100%);
+  background-image: url(src/Assets/texture.jpg), 
+  radial-gradient(circle at top, var(--background) 90%, #000000 100%);
   background-size: cover;
   background-blend-mode: multiply;
   font-synthesis: none;

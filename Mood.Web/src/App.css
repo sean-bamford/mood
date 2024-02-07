@@ -1,7 +1,7 @@
 #root {
   margin: 0 auto;
   height: 100svh;
-  scrollbar-color: transparent transparent;
+  /* scrollbar-color: transparent transparent; */
   /* var(--background) var(--primary); */
 
 }
@@ -74,6 +74,7 @@
   width: inherit;
   overflow: visible;
   padding: 2em;
+  /* margin-top: 12em; */
 }
 
 .selection>* {
@@ -135,9 +136,33 @@
   aspect-ratio: 1/1;
 }
 
-/* .header {
-margin: 1rem;
-} */
+.header {
+  z-index: 2;
+  position: absolute;
+  width: 100svw;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  >p {
+    margin: 0;
+    margin-bottom: 1em;
+  }
+}
+
+.fader {
+  position: fixed;
+  pointer-events: none;
+  transform: translateY(-2em);
+  height: 12em;
+  width: 100svw;
+  z-index: 1;
+  background-size: cover;
+  background: url(Assets/texture.jpg), var(--background);
+  background-blend-mode: multiply;
+  -webkit-mask-image: linear-gradient(to top, transparent, black 35%);
+  mask-image: linear-gradient(to top, transparent, black 35%);
+}
 
 .footer {
   position: absolute;

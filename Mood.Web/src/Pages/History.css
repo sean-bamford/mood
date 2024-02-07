@@ -127,6 +127,21 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+  margin-top: 8em;
+}
+
+.noteIcon {
+ 
+  >* {
+   fill: aliceblue;
+   position: absolute;
+   aspect-ratio: 1/1;
+   width: 2em;
+   transform: translateX(-50%) translateY(-50%);
+   mix-blend-mode: soft-light;
+   isolation: isolate;
+   z-index: 1;
+  }
 }
 
 span {
@@ -179,6 +194,26 @@ span {
   animation: loadFade 1.5s ease forwards;
   position: fixed;
   top: 7em;
+}
+
+.spinner{
+  fill: var(--text);
+  width: 5em;
+  aspect-ratio: 1/1;
+  position: fixed;
+  /* margin: 2em; */
+  top: calc(50svh - 12em);
+  left: calc(50% - 2.5em);
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 button.clear {
