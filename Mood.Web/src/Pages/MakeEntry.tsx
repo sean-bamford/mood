@@ -223,7 +223,7 @@ const MakeEntry = () => {
       <div className="header">
         <h1 className="title">Entry</h1>
         {!showFactors && !showMoods && (
-          <p className="welcome">How are you feeling?</p>
+          <p className="subtitle">How are you feeling?</p>
         )}
       </div>
       <div className="content" onMouseUp={handleMouseUp}>

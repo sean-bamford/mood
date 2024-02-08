@@ -163,7 +163,7 @@ const History = () => {
     <>
       <div className="header">
         <h1 className="title">History</h1>
-        <p className="welcome">View your past entries.</p>
+        <p className="subtitle">View your past entries.</p>
       </div>
       <div className="content">
         {showWarning &&

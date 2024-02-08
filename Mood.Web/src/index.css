@@ -1,4 +1,6 @@
 :root {
+  margin: 0 auto;
+  height: 100svh;
   font-family: system-ui, Avenir, Helvetica, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -27,4 +29,6 @@
   --3: #a8a615;
   --4: #37a815;
   --5: #1579a8;
+    /* scrollbar-color: transparent transparent; */
+  /* var(--background) var(--primary); */
 }

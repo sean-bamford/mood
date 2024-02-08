@@ -32,7 +32,7 @@ const Home = () => {
   <>
     <div className="header">
       <h1 className="title">Mood.</h1>
-      <p className="welcome">Welcome, user.</p>
+      <p className="subtitle">Welcome, user.</p>
     </div>
     <div className="content">
       <div className={`nav ${fadeNav ? 'fadeNav' : ''}`}>
