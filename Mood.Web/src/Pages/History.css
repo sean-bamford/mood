@@ -144,15 +144,12 @@
   }
 }
 
-span {
-  font-size: large;
-}
-
 .date {
   position: absolute;
   padding: 1em;
   top: 0;
   font-style: italic;
+  font-size: 1.2em;
 }
 
 .mood {
@@ -164,6 +161,7 @@ span {
   position: absolute;
   bottom: 0;
   padding: 1em;
+  font-size: 1.2em;
 }
 
 .refresh {
@@ -191,19 +189,16 @@ span {
 }
 
 .loading {
-  animation: loadFade 1.5s ease forwards;
-  position: fixed;
-  top: 7em;
+  animation: loadFade 1.5s ease forwards infinite;
+  position: relative;
+  transform: translateY(-2.5em) translateX(-2.5em);
 }
 
 .spinner{
   fill: var(--text);
   width: 5em;
   aspect-ratio: 1/1;
-  position: fixed;
-  /* margin: 2em; */
-  top: calc(50svh - 12em);
-  left: calc(50% - 2.5em);
+  position: absolute;
   animation: spin 1s linear infinite;
 }
 @keyframes spin {
