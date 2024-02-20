@@ -127,7 +127,7 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 8em;
+  margin-top: 6em;
 }
 
 .noteIcon {
@@ -189,21 +189,21 @@
 }
 
 .loading {
-  animation: loadFade 1.5s ease forwards infinite;
-  position: relative;
-  transform: translateY(-2.5em) translateX(-2.5em);
+  animation: loadFade 1.5s ease forwards;
+  position: fixed;
+  transform: translateY(calc(50svh - 9em));
 }
 
 .spinner{
   fill: var(--text);
   width: 5em;
   aspect-ratio: 1/1;
-  position: absolute;
+  /* position: fixed; */
   animation: spin 1s linear infinite;
 }
 @keyframes spin {
   0% {
-    transform: rotate(0deg);
+    transform: translateY(calc()),rotate(0deg);
   }
 
   100% {

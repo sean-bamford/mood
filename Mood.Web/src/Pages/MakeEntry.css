@@ -2,8 +2,7 @@
   flex: 0;
   flex-direction: column;
   text-align: center;
-  transition: all 300ms ease-out;
-
+  transition: all 300ms ease-out; 
   &:hover,
   &:focus-visible {
     transform: translateY(0);
